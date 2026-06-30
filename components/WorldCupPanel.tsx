@@ -3,6 +3,69 @@
 import { useEffect, useState } from "react";
 import type { WorldCupMatch } from "@/app/api/mundial/route";
 
+const TEAM_NAMES_ES: Record<string, string> = {
+  Argentina: "Argentina",
+  Brazil: "Brasil",
+  Uruguay: "Uruguay",
+  Colombia: "Colombia",
+  Ecuador: "Ecuador",
+  Paraguay: "Paraguay",
+  Venezuela: "Venezuela",
+  Bolivia: "Bolivia",
+  Chile: "Chile",
+  Peru: "Perú",
+  Mexico: "México",
+  "United States": "Estados Unidos",
+  Canada: "Canadá",
+  "Costa Rica": "Costa Rica",
+  Panama: "Panamá",
+  Honduras: "Honduras",
+  Jamaica: "Jamaica",
+  Haiti: "Haití",
+  "Netherlands": "Países Bajos",
+  Spain: "España",
+  France: "Francia",
+  Germany: "Alemania",
+  Italy: "Italia",
+  Portugal: "Portugal",
+  England: "Inglaterra",
+  Belgium: "Bélgica",
+  Croatia: "Croacia",
+  Switzerland: "Suiza",
+  Austria: "Austria",
+  Poland: "Polonia",
+  Serbia: "Serbia",
+  Denmark: "Dinamarca",
+  Sweden: "Suecia",
+  Norway: "Noruega",
+  Scotland: "Escocia",
+  Wales: "Gales",
+  Ukraine: "Ucrania",
+  Morocco: "Marruecos",
+  Senegal: "Senegal",
+  Tunisia: "Túnez",
+  Algeria: "Argelia",
+  Egypt: "Egipto",
+  Nigeria: "Nigeria",
+  Ghana: "Ghana",
+  Cameroon: "Camerún",
+  "Ivory Coast": "Costa de Marfil",
+  "South Africa": "Sudáfrica",
+  Japan: "Japón",
+  "South Korea": "Corea del Sur",
+  "Saudi Arabia": "Arabia Saudita",
+  Iran: "Irán",
+  Qatar: "Catar",
+  Australia: "Australia",
+  "New Zealand": "Nueva Zelanda",
+  Jordan: "Jordania",
+  Uzbekistan: "Uzbekistán",
+};
+
+function teamName(name: string): string {
+  return TEAM_NAMES_ES[name] ?? name;
+}
+
 function formatTime(iso: string): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return "";
@@ -38,7 +101,7 @@ function MatchRow({ match }: { match: WorldCupMatch }) {
       )}
       <div className="flex items-center justify-between gap-2">
         <span className="text-sm text-neutral-200">
-          {match.home} vs {match.away}
+          {teamName(match.home)} vs. {teamName(match.away)}
         </span>
         {match.finished && (
           <span className="text-sm font-medium text-neutral-100 shrink-0">
