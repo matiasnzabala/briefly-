@@ -60,8 +60,8 @@ export async function GET() {
     const res = await fetch(
       "https://api.open-meteo.com/v1/forecast?latitude=-34.6&longitude=-58.38" +
       "&current=temperature_2m,weather_code,apparent_temperature,relative_humidity_2m,wind_speed_10m,wind_direction_10m,precipitation" +
-      "&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,uv_index_max" +
-      "&timezone=America%2FArgentina%2FBuenos_Aires&forecast_days=1",
+      "&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,uv_index_max,weather_code" +
+      "&timezone=America%2FArgentina%2FBuenos_Aires&forecast_days=7",
       { signal: AbortSignal.timeout(8000) }
     );
     if (!res.ok) throw new Error(`open-meteo respondió ${res.status}`);
@@ -84,6 +84,14 @@ export async function GET() {
       tempMin: daily.temperature_2m_min?.[0] ?? null,
       precipSum: daily.precipitation_sum?.[0] ?? null,
       uvIndex: daily.uv_index_max?.[0] ?? null,
+      forecast: (daily.time ?? []).map((date: string, i: number) => ({
+        date,
+        tempMax: daily.temperature_2m_max?.[i] ?? null,
+        tempMin: daily.temperature_2m_min?.[i] ?? null,
+        precipSum: daily.precipitation_sum?.[i] ?? null,
+        emoji: WEATHER_CODE_EMOJI[daily.weather_code?.[i]] ?? "—",
+        description: WEATHER_CODE_LABEL[daily.weather_code?.[i]] ?? "—",
+      })),
     };
 
     cache = { data, expiresAt: Date.now() + CACHE_TTL_MS };

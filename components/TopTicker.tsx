@@ -5,6 +5,15 @@ import type { DolarRate } from "@/app/api/dolar/route";
 
 const SHOWN_CASAS = ["oficial", "blue"];
 
+interface ForecastDay {
+  date: string;
+  tempMax: number | null;
+  tempMin: number | null;
+  precipSum: number | null;
+  emoji: string;
+  description: string;
+}
+
 interface Clima {
   temperature: number | null;
   description: string;
@@ -18,6 +27,7 @@ interface Clima {
   tempMin: number | null;
   precipSum: number | null;
   uvIndex: number | null;
+  forecast: ForecastDay[];
 }
 
 interface Feriado {
@@ -116,6 +126,35 @@ function ClimaModal({ clima, onClose }: { clima: Clima; onClose: () => void }) {
             </div>
           ))}
         </div>
+
+        {clima.forecast && clima.forecast.length > 1 && (
+          <div className="flex flex-col gap-2 pt-3" style={{ borderTop: "1px solid var(--border)" }}>
+            <p className="text-xs font-medium" style={{ color: "var(--text-muted)" }}>Próximos días</p>
+            <div className="flex flex-col gap-1.5">
+              {clima.forecast.slice(1).map((day) => {
+                const date = new Date(`${day.date}T12:00:00`);
+                const label = date.toLocaleDateString("es-AR", { weekday: "short", day: "2-digit", month: "short" });
+                return (
+                  <div key={day.date} className="flex items-center justify-between gap-2 text-sm">
+                    <span className="flex items-center gap-1.5 min-w-0">
+                      <span>{day.emoji}</span>
+                      <span className="truncate" style={{ color: "var(--text-muted)" }}>{label}</span>
+                    </span>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {day.precipSum !== null && day.precipSum > 0 && (
+                        <span className="text-xs" style={{ color: "var(--text-faint)" }}>💧{day.precipSum}mm</span>
+                      )}
+                      <span style={{ color: "var(--text)" }}>
+                        <span className="font-medium">{day.tempMax !== null ? `${Math.round(day.tempMax)}°` : "—"}</span>
+                        <span style={{ color: "var(--text-muted)" }}> / {day.tempMin !== null ? `${Math.round(day.tempMin)}°` : "—"}</span>
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
