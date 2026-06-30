@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   CATEGORIES,
+  COUNTRIES,
   MOCK_EVENTS,
   type BriefEvent,
   type Category,
@@ -22,6 +23,7 @@ const TOP_OPTIONS = [5, 10, 20] as const;
 const PREFS_KEY = "briefly:prefs";
 
 interface StoredPrefs {
+  countries: string[];
   categories: Category[];
   period: Period;
   topN: (typeof TOP_OPTIONS)[number];
@@ -44,6 +46,10 @@ const PERIOD_MS: Record<Period, number> = {
   month: 1000 * 60 * 60 * 24 * 30,
 };
 
+function countryName(code: string): string {
+  return COUNTRIES.find((c) => c.code === code)?.name ?? code;
+}
+
 function formatPublishedAt(iso: string): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return "";
@@ -63,6 +69,9 @@ function importanceColor(score: number) {
 }
 
 export default function BriefFeed() {
+  const [countries, setCountries] = useState<string[]>(
+    () => loadPrefs()?.countries ?? ["AR"]
+  );
   const [categories, setCategories] = useState<Category[]>(
     () => loadPrefs()?.categories ?? CATEGORIES
   );
@@ -74,9 +83,9 @@ export default function BriefFeed() {
   );
 
   useEffect(() => {
-    const prefs: StoredPrefs = { categories, period, topN };
+    const prefs: StoredPrefs = { countries, categories, period, topN };
     window.localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
-  }, [categories, period, topN]);
+  }, [countries, categories, period, topN]);
 
   const [liveEvents, setLiveEvents] = useState<BriefEvent[] | null>(null);
   const [loading, setLoading] = useState(true);
@@ -127,15 +136,27 @@ export default function BriefFeed() {
     );
   }
 
+  function toggleCountry(code: string) {
+    setCountries((prev) => {
+      if (prev.includes(code)) {
+        const next = prev.filter((c) => c !== code);
+        return next.length === 0 ? prev : next;
+      }
+      return [...prev, code];
+    });
+  }
+
   const sourceEvents = liveEvents ?? MOCK_EVENTS;
 
   const [now] = useState(() => Date.now());
 
   const candidates = useMemo(() => {
     return sourceEvents
-      .filter((e) => categories.includes(e.category))
+      .filter(
+        (e) => countries.includes(e.country) && categories.includes(e.category)
+      )
       .sort((a, b) => b.importance - a.importance);
-  }, [sourceEvents, categories]);
+  }, [sourceEvents, countries, categories]);
 
   const eventsInPeriod = useMemo(() => {
     const windowMs = PERIOD_MS[period];
@@ -203,6 +224,25 @@ export default function BriefFeed() {
       </header>
 
       <section className="flex flex-col gap-4">
+        <div>
+          <p className="text-xs text-neutral-500 mb-2">Países</p>
+          <div className="flex flex-wrap gap-2">
+            {COUNTRIES.map((c) => (
+              <button
+                key={c.code}
+                onClick={() => toggleCountry(c.code)}
+                className={`px-3 py-1 text-xs rounded-full border transition ${
+                  countries.includes(c.code)
+                    ? "bg-neutral-100 text-neutral-900 border-neutral-100"
+                    : "border-neutral-700 text-neutral-400 hover:border-neutral-500"
+                }`}
+              >
+                {c.name}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="flex flex-wrap gap-2 items-center">
           <div className="flex gap-1 bg-neutral-900 border border-neutral-800 rounded-lg p-1">
             {(Object.keys(PERIOD_LABEL) as Period[]).map((p) => (
@@ -306,6 +346,7 @@ export default function BriefFeed() {
             <div className="flex items-center justify-between gap-3">
               <span className="text-xs uppercase tracking-wide text-neutral-500">
                 {event.category}
+                {countries.length > 1 && ` — ${countryName(event.country)}`}
               </span>
               <span
                 className={`text-xs px-2 py-0.5 rounded-full border ${importanceColor(
@@ -357,6 +398,8 @@ export default function BriefFeed() {
               <div className="flex flex-col gap-1">
                 <span className="text-xs uppercase tracking-wide text-neutral-500">
                   {selectedEvent.category}
+                  {countries.length > 1 &&
+                    ` — ${countryName(selectedEvent.country)}`}
                 </span>
                 <span className="text-xs text-neutral-600">
                   {formatPublishedAt(selectedEvent.publishedAt)}

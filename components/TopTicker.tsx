@@ -15,6 +15,11 @@ interface Feriado {
   nombre: string;
 }
 
+interface RiesgoPais {
+  valor: number;
+  fecha: string;
+}
+
 function formatFeriadoDate(fecha: string): string {
   const date = new Date(`${fecha}T00:00:00`);
   if (Number.isNaN(date.getTime())) return fecha;
@@ -25,6 +30,7 @@ export default function TopTicker() {
   const [rates, setRates] = useState<DolarRate[] | null>(null);
   const [clima, setClima] = useState<Clima | null>(null);
   const [feriado, setFeriado] = useState<Feriado | null>(null);
+  const [riesgoPais, setRiesgoPais] = useState<RiesgoPais | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -52,6 +58,13 @@ export default function TopTicker() {
       })
       .catch(() => {});
 
+    fetch("/api/riesgo-pais")
+      .then((r) => r.json())
+      .then((json) => {
+        if (!cancelled && typeof json.valor === "number") setRiesgoPais(json);
+      })
+      .catch(() => {});
+
     return () => {
       cancelled = true;
     };
@@ -63,7 +76,8 @@ export default function TopTicker() {
       )
     : [];
 
-  if (shownRates.length === 0 && !clima && !feriado) return null;
+  if (shownRates.length === 0 && !clima && !feriado && !riesgoPais)
+    return null;
 
   return (
     <div className="flex flex-wrap gap-4 text-xs text-neutral-400">
@@ -84,6 +98,15 @@ export default function TopTicker() {
             {Math.round(clima.temperature)}°C
           </span>
           <span className="text-neutral-500">{clima.description}</span>
+        </span>
+      )}
+
+      {riesgoPais && (
+        <span className="flex items-center gap-1">
+          <span className="text-neutral-500">Riesgo país:</span>
+          <span className="text-neutral-200 font-medium">
+            {riesgoPais.valor.toLocaleString("es-AR")} pb
+          </span>
         </span>
       )}
 

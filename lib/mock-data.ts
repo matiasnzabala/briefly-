@@ -24,7 +24,16 @@ export interface BriefEvent {
   publishedAt: string;
 }
 
-export const COUNTRIES = [{ code: "AR", name: "Argentina" }];
+export const COUNTRIES = [
+  { code: "AR", name: "Argentina" },
+  { code: "BR", name: "Brasil" },
+  { code: "ES", name: "España" },
+  { code: "MX", name: "México" },
+  { code: "CL", name: "Chile" },
+  { code: "CO", name: "Colombia" },
+  { code: "US", name: "Estados Unidos" },
+  { code: "IT", name: "Italia" },
+];
 
 export const CATEGORIES: Category[] = [
   "Política",

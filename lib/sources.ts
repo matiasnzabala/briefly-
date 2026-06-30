@@ -2,9 +2,25 @@ export interface FeedSource {
   name: string;
   url: string;
   country: string;
+  /**
+   * Google News RSS items come back as "Headline - SourceName" with all
+   * sources mixed into one feed. When true, the real outlet name is
+   * parsed out of each title instead of using `name` as the source.
+   */
+  isGoogleNews?: boolean;
+}
+
+function googleNews(country: string, hl: string, gl: string): FeedSource {
+  return {
+    name: "Google News",
+    url: `https://news.google.com/rss?hl=${hl}&gl=${gl}&ceid=${gl}:${hl}`,
+    country,
+    isGoogleNews: true,
+  };
 }
 
 export const SOURCES: FeedSource[] = [
+  // Argentina: fuentes directas ya validadas (más diversidad que Google News solo)
   {
     name: "La Nación",
     url: "https://www.lanacion.com.ar/arc/outboundfeeds/rss/",
@@ -35,4 +51,14 @@ export const SOURCES: FeedSource[] = [
     url: "https://www.clarin.com/rss/tecnologia/",
     country: "AR",
   },
+  googleNews("AR", "es-419", "AR"),
+
+  // Resto de países: Google News por país (validado, sin XML roto ni 404)
+  googleNews("BR", "pt-BR", "BR"),
+  googleNews("ES", "es", "ES"),
+  googleNews("MX", "es-419", "MX"),
+  googleNews("CL", "es-419", "CL"),
+  googleNews("CO", "es-419", "CO"),
+  googleNews("US", "es-419", "US"),
+  googleNews("IT", "it", "IT"),
 ];
