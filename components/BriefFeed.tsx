@@ -111,7 +111,7 @@ export default function BriefFeed() {
 
   const [now] = useState(() => Date.now());
 
-  const events = useMemo(() => {
+  const eventsInPeriod = useMemo(() => {
     const windowMs = PERIOD_MS[period];
 
     return sourceEvents
@@ -122,9 +122,13 @@ export default function BriefFeed() {
         if (Number.isNaN(publishedTime)) return true;
         return now - publishedTime <= windowMs;
       })
-      .sort((a, b) => b.importance - a.importance)
-      .slice(0, topN);
-  }, [sourceEvents, countries, categories, topN, period, now]);
+      .sort((a, b) => b.importance - a.importance);
+  }, [sourceEvents, countries, categories, period, now]);
+
+  const events = useMemo(
+    () => eventsInPeriod.slice(0, topN),
+    [eventsInPeriod, topN]
+  );
 
   return (
     <div className="w-full max-w-2xl mx-auto px-4 py-10 flex flex-col gap-8">
@@ -229,10 +233,18 @@ export default function BriefFeed() {
       </section>
 
       <section className="flex flex-col gap-4">
+        {!loading && eventsInPeriod.length > 0 && (
+          <p className="text-xs text-neutral-500">
+            {eventsInPeriod.length} eventos encontrados en{" "}
+            {PERIOD_LABEL[period].toLowerCase()}, mostrando los {events.length}{" "}
+            más importantes.
+          </p>
+        )}
+
         {events.length === 0 && !loading && (
           <p className="text-neutral-500 text-sm">
             No hay eventos para esta combinación de filtros. Probá con otras
-            categorías.
+            categorías o un periodo más amplio.
           </p>
         )}
 
