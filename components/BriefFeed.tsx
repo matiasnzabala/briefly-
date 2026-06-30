@@ -18,6 +18,12 @@ const PERIOD_LABEL: Record<Period, string> = {
 
 const TOP_OPTIONS = [5, 10, 20] as const;
 
+const PERIOD_MS: Record<Period, number> = {
+  today: 1000 * 60 * 60 * 24,
+  week: 1000 * 60 * 60 * 24 * 7,
+  month: 1000 * 60 * 60 * 24 * 30,
+};
+
 function importanceColor(score: number) {
   if (score >= 85) return "bg-red-500/20 text-red-300 border-red-500/30";
   if (score >= 65)
@@ -99,14 +105,22 @@ export default function BriefFeed() {
     return [...liveEvents, ...mockFallback];
   }, [liveEvents]);
 
+  const [now] = useState(() => Date.now());
+
   const events = useMemo(() => {
+    const windowMs = PERIOD_MS[period];
+
     return sourceEvents
-      .filter(
-        (e) => countries.includes(e.country) && categories.includes(e.category)
-      )
+      .filter((e) => {
+        if (!countries.includes(e.country)) return false;
+        if (!categories.includes(e.category)) return false;
+        const publishedTime = new Date(e.publishedAt).getTime();
+        if (Number.isNaN(publishedTime)) return true;
+        return now - publishedTime <= windowMs;
+      })
       .sort((a, b) => b.importance - a.importance)
       .slice(0, topN);
-  }, [sourceEvents, countries, categories, topN]);
+  }, [sourceEvents, countries, categories, topN, period, now]);
 
   return (
     <div className="w-full max-w-2xl mx-auto px-4 py-10 flex flex-col gap-8">

@@ -30,4 +30,9 @@ export const SOURCES: FeedSource[] = [
     url: "https://www.cronista.com/files/rss/news.xml",
     country: "AR",
   },
+  {
+    name: "Clarín Tecnología",
+    url: "https://www.clarin.com/rss/tecnologia/",
+    country: "AR",
+  },
 ];

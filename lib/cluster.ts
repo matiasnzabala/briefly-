@@ -36,8 +36,13 @@ const CATEGORY_KEYWORDS: Record<Category, string[]> = {
   ],
   Tecnología: [
     "tecnologia", "tecnología", " ia ", "inteligencia artificial", "app",
-    "software", "startup", "internet", "ciberseguridad", "google", "meta",
-    "openai", "smartphone", "robot", "chatgpt",
+    "aplicacion", "aplicación", "software", "hardware", "startup",
+    "internet", "ciberseguridad", "hackeo", "hackers", "google", "meta",
+    "openai", "microsoft", "apple", "amazon", "samsung", "smartphone",
+    "celular", "iphone", "android", "robot", "robotica", "robótica",
+    "chatgpt", "algoritmo", "datos", "nube", "cloud", "videojuego",
+    "videojuegos", "gaming", "criptomoneda", "blockchain", "satelite",
+    "satélite", "espacio", "nasa", "spacex", "drone", "dron",
   ],
   Negocios: [
     "empresa", "empresas", "inversion", "inversión", "negocio", "negocios",
