@@ -81,21 +81,25 @@ export default function TopTicker() {
     return null;
 
   return (
-    <div className="flex flex-wrap gap-4 text-xs text-neutral-400">
+    <div className="flex flex-wrap gap-2 text-xs">
       {shownRates.map((r) => (
-        <span key={r.casa} className="flex items-center gap-1">
-          <span className="text-neutral-500">{r.nombre}:</span>
+        <span
+          key={r.casa}
+          className="flex items-center gap-1.5 rounded-full border border-neutral-800 bg-neutral-900/60 px-3 py-1.5"
+        >
+          <span>💵</span>
+          <span className="text-neutral-500">{r.nombre}</span>
           <span className="text-neutral-200 font-medium">
-            compra ${r.compra.toLocaleString("es-AR")} / venta $
+            ${r.compra.toLocaleString("es-AR")} / $
             {r.venta.toLocaleString("es-AR")}
           </span>
         </span>
       ))}
 
       {clima && clima.temperature !== null && (
-        <span className="flex items-center gap-1">
-          <span className="text-neutral-500">Buenos Aires:</span>
-          {clima.emoji && <span>{clima.emoji}</span>}
+        <span className="flex items-center gap-1.5 rounded-full border border-neutral-800 bg-neutral-900/60 px-3 py-1.5">
+          <span>{clima.emoji || "📍"}</span>
+          <span className="text-neutral-500">Buenos Aires</span>
           <span className="text-neutral-200 font-medium">
             {Math.round(clima.temperature)}°C
           </span>
@@ -104,8 +108,9 @@ export default function TopTicker() {
       )}
 
       {riesgoPais && (
-        <span className="flex items-center gap-1">
-          <span className="text-neutral-500">Riesgo país:</span>
+        <span className="flex items-center gap-1.5 rounded-full border border-neutral-800 bg-neutral-900/60 px-3 py-1.5">
+          <span>📈</span>
+          <span className="text-neutral-500">Riesgo país</span>
           <span className="text-neutral-200 font-medium">
             {riesgoPais.valor.toLocaleString("es-AR")} pb
           </span>
@@ -113,8 +118,9 @@ export default function TopTicker() {
       )}
 
       {feriado && (
-        <span className="flex items-center gap-1">
-          <span className="text-neutral-500">Próximo feriado:</span>
+        <span className="flex items-center gap-1.5 rounded-full border border-neutral-800 bg-neutral-900/60 px-3 py-1.5">
+          <span>📅</span>
+          <span className="text-neutral-500">Próximo feriado</span>
           <span className="text-neutral-200 font-medium">
             {formatFeriadoDate(feriado.fecha)}
           </span>
