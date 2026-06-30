@@ -66,6 +66,83 @@ function teamName(name: string): string {
   return TEAM_NAMES_ES[name] ?? name;
 }
 
+const TEAM_ISO: Record<string, string> = {
+  Argentina: "AR",
+  Brazil: "BR",
+  Uruguay: "UY",
+  Colombia: "CO",
+  Ecuador: "EC",
+  Paraguay: "PY",
+  Venezuela: "VE",
+  Bolivia: "BO",
+  Chile: "CL",
+  Peru: "PE",
+  Mexico: "MX",
+  "United States": "US",
+  Canada: "CA",
+  "Costa Rica": "CR",
+  Panama: "PA",
+  Honduras: "HN",
+  Jamaica: "JM",
+  Haiti: "HT",
+  Netherlands: "NL",
+  Spain: "ES",
+  France: "FR",
+  Germany: "DE",
+  Italy: "IT",
+  Portugal: "PT",
+  England: "GB",
+  Belgium: "BE",
+  Croatia: "HR",
+  Switzerland: "CH",
+  Austria: "AT",
+  Poland: "PL",
+  Serbia: "RS",
+  Denmark: "DK",
+  Sweden: "SE",
+  Norway: "NO",
+  Scotland: "GB",
+  Wales: "GB",
+  Ukraine: "UA",
+  Morocco: "MA",
+  Senegal: "SN",
+  Tunisia: "TN",
+  Algeria: "DZ",
+  Egypt: "EG",
+  Nigeria: "NG",
+  Ghana: "GH",
+  Cameroon: "CM",
+  "Ivory Coast": "CI",
+  "South Africa": "ZA",
+  Japan: "JP",
+  "South Korea": "KR",
+  "Saudi Arabia": "SA",
+  Iran: "IR",
+  Qatar: "QA",
+  Australia: "AU",
+  "New Zealand": "NZ",
+  Jordan: "JO",
+  Uzbekistan: "UZ",
+};
+
+function FlagIcon({ team }: { team: string }) {
+  const iso = TEAM_ISO[team];
+  if (!iso) return null;
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={`https://flagcdn.com/24x18/${iso.toLowerCase()}.png`}
+      alt=""
+      width={20}
+      height={15}
+      className="inline-block rounded-[2px] align-middle"
+      onError={(e) => {
+        e.currentTarget.style.display = "none";
+      }}
+    />
+  );
+}
+
 const AR_TZ = "America/Argentina/Buenos_Aires";
 
 function formatTime(iso: string): string {
@@ -113,8 +190,9 @@ function MatchRow({ match }: { match: WorldCupMatch }) {
         </span>
       )}
       <div className="flex items-center justify-between gap-2">
-        <span className="text-sm text-neutral-200">
-          {teamName(match.home)} vs. {teamName(match.away)}
+        <span className="text-sm text-neutral-200 flex items-center gap-1.5 flex-wrap">
+          <FlagIcon team={match.home} /> {teamName(match.home)} vs.{" "}
+          <FlagIcon team={match.away} /> {teamName(match.away)}
         </span>
         {match.finished && (
           <span className="text-sm font-medium text-neutral-100 shrink-0">
