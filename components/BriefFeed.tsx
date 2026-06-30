@@ -24,6 +24,10 @@ const PERIOD_MS: Record<Period, number> = {
   month: 1000 * 60 * 60 * 24 * 30,
 };
 
+function countryName(code: string): string {
+  return COUNTRIES.find((c) => c.code === code)?.name ?? code;
+}
+
 function importanceColor(score: number) {
   if (score >= 85) return "bg-red-500/20 text-red-300 border-red-500/30";
   if (score >= 65)
@@ -240,6 +244,8 @@ export default function BriefFeed() {
             <div className="flex items-center justify-between gap-3">
               <span className="text-xs uppercase tracking-wide text-neutral-500">
                 {event.category}
+                {countries.length > 1 &&
+                  ` — ${countryName(event.country)}`}
               </span>
               <span
                 className={`text-xs px-2 py-0.5 rounded-full border ${importanceColor(
