@@ -85,46 +85,49 @@ export default function TopTicker() {
       {shownRates.map((r) => (
         <span
           key={r.casa}
-          className="flex items-center gap-1.5 rounded-full border border-neutral-800 bg-neutral-900/60 px-3 py-1.5"
+          className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs"
+          style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}
         >
           <span>💵</span>
-          <span className="text-neutral-500">{r.nombre}</span>
-          <span className="text-neutral-200 font-medium">
-            ${r.compra.toLocaleString("es-AR")} / $
-            {r.venta.toLocaleString("es-AR")}
+          <span style={{ color: "rgba(255,255,255,0.35)" }}>{r.nombre}</span>
+          <span className="font-medium text-neutral-200">
+            ${r.compra.toLocaleString("es-AR")} / ${r.venta.toLocaleString("es-AR")}
           </span>
         </span>
       ))}
 
       {clima && clima.temperature !== null && (
-        <span className="flex items-center gap-1.5 rounded-full border border-neutral-800 bg-neutral-900/60 px-3 py-1.5">
+        <span
+          className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs"
+          style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}
+        >
           <span>{clima.emoji || "📍"}</span>
-          <span className="text-neutral-500">Buenos Aires</span>
-          <span className="text-neutral-200 font-medium">
-            {Math.round(clima.temperature)}°C
-          </span>
-          <span className="text-neutral-500">{clima.description}</span>
+          <span style={{ color: "rgba(255,255,255,0.35)" }}>Buenos Aires</span>
+          <span className="font-medium text-neutral-200">{Math.round(clima.temperature)}°C</span>
+          <span style={{ color: "rgba(255,255,255,0.35)" }}>{clima.description}</span>
         </span>
       )}
 
       {riesgoPais && (
-        <span className="flex items-center gap-1.5 rounded-full border border-neutral-800 bg-neutral-900/60 px-3 py-1.5">
+        <span
+          className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs"
+          style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}
+        >
           <span>📈</span>
-          <span className="text-neutral-500">Riesgo país</span>
-          <span className="text-neutral-200 font-medium">
-            {riesgoPais.valor.toLocaleString("es-AR")} pb
-          </span>
+          <span style={{ color: "rgba(255,255,255,0.35)" }}>Riesgo país</span>
+          <span className="font-medium text-neutral-200">{riesgoPais.valor.toLocaleString("es-AR")} pb</span>
         </span>
       )}
 
       {feriado && (
-        <span className="flex items-center gap-1.5 rounded-full border border-neutral-800 bg-neutral-900/60 px-3 py-1.5">
+        <span
+          className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs"
+          style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}
+        >
           <span>📅</span>
-          <span className="text-neutral-500">Próximo feriado</span>
-          <span className="text-neutral-200 font-medium">
-            {formatFeriadoDate(feriado.fecha)}
-          </span>
-          <span className="text-neutral-500">— {feriado.nombre}</span>
+          <span style={{ color: "rgba(255,255,255,0.35)" }}>Próximo feriado</span>
+          <span className="font-medium text-neutral-200">{formatFeriadoDate(feriado.fecha)}</span>
+          <span style={{ color: "rgba(255,255,255,0.35)" }}>— {feriado.nombre}</span>
         </span>
       )}
     </div>

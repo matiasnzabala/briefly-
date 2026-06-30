@@ -7,19 +7,27 @@
 
 body {
   font-family: Arial, Helvetica, sans-serif;
+  background-color: #080b12;
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .animate-fadeIn {
   animation: fadeIn 0.3s ease-out;
+}
+
+/* glass card */
+.glass {
+  background: rgba(255,255,255,0.035);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.07);
+}
+
+.glass:hover {
+  border-color: rgba(139,92,246,0.35);
+  background: rgba(255,255,255,0.055);
 }
