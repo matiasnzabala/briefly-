@@ -245,7 +245,7 @@ export default function WorldCupPanel() {
     .sort((a, b) => Date.parse(b.time) - Date.parse(a.time));
 
   return (
-    <aside className="w-full lg:w-64 flex flex-col gap-5">
+    <aside className="flex flex-col gap-5">
       <div className="flex flex-col gap-3">
         <h2 className="text-sm font-medium text-neutral-300">
           Mundial 2026 — Hoy
