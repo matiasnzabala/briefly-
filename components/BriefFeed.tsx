@@ -12,6 +12,7 @@ import {
 import TopTicker from "./TopTicker";
 import WorldCupPanel from "./WorldCupPanel";
 import ThemeToggle from "./ThemeToggle";
+import CountryPicker from "./CountryPicker";
 
 const PERIOD_LABEL: Record<Period, string> = {
   today: "Hoy",
@@ -200,7 +201,6 @@ export default function BriefFeed({
   const [search, setSearch] = useState("");
 
   // filtros
-  const allCountriesSelected = COUNTRIES.every((c) => countries.includes(c.code));
   const allCategoriesSelected = CATEGORIES.every((c) => categories.includes(c));
 
   function toggleCountry(code: string) {
@@ -336,36 +336,8 @@ export default function BriefFeed({
           {/* Filtros */}
           <section className="flex flex-col gap-4">
             <div>
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-xs" style={{ color: "var(--text-muted)" }}>Países</p>
-                <button
-                  onClick={() =>
-                    setCountries(
-                      allCountriesSelected ? ["AR"] : COUNTRIES.map((c) => c.code)
-                    )
-                  }
-                  className="text-xs transition"
-                  style={{ color: "var(--text-faint)" }}
-                >
-                  {allCountriesSelected ? "Ninguno" : "Todos"}
-                </button>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {COUNTRIES.map((c) => (
-                  <button
-                    key={c.code}
-                    onClick={() => toggleCountry(c.code)}
-                    className="px-3 py-1 text-xs rounded-full border transition"
-                    style={
-                      countries.includes(c.code)
-                        ? { background: "var(--accent-bg)", borderColor: "var(--accent-border)", color: "var(--accent-text)" }
-                        : { background: "transparent", borderColor: "var(--border)", color: "var(--text-muted)" }
-                    }
-                  >
-                    {c.name}
-                  </button>
-                ))}
-              </div>
+              <p className="text-xs mb-2" style={{ color: "var(--text-muted)" }}>Países</p>
+              <CountryPicker selected={countries} onChange={setCountries} />
             </div>
 
             <div className="flex flex-wrap gap-2 items-center">

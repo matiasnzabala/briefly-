@@ -94,4 +94,31 @@ export const SOURCES: FeedSource[] = [
   googleNews("IT", "it", "IT", "it"),
   { name: "Corriere della Sera", url: "https://xml2.corriereobjects.it/rss/homepage.xml", country: "IT", lang: "it" },
   { name: "La Repubblica", url: "https://www.repubblica.it/rss/homepage/rss2.0.xml", country: "IT", lang: "it" },
+
+  // Más países hispanohablantes
+  googleNews("CO", "es-419", "CO"),
+  googleNews("PE", "es-419", "PE"),
+  googleNews("EC", "es-419", "EC"),
+  googleNews("UY", "es-419", "UY"),
+  googleNews("BO", "es-419", "BO"),
+  googleNews("PY", "es-419", "PY"),
+  googleNews("CU", "es-419", "CU"),
+  googleNews("DO", "es-419", "DO"),
+  googleNews("CR", "es-419", "CR"),
+  googleNews("GT", "es-419", "GT"),
+
+  // Europa adicional
+  googleNews("FR", "fr", "FR", "it"),   // reutilizamos traducción para francés por ahora
+  googleNews("DE", "de", "DE", "it"),
+  googleNews("GB", "en-GB", "GB"),
+  googleNews("PT", "pt-PT", "PT", "pt"),
+  googleNews("CA", "en-CA", "CA"),
+
+  // Otros
+  googleNews("JP", "ja", "JP"),
+  googleNews("IN", "en-IN", "IN"),
+  googleNews("RU", "ru", "RU"),
+  googleNews("CN", "zh-CN", "CN"),
+  googleNews("IL", "iw", "IL"),
+  googleNews("UA", "uk", "UA"),
 ];

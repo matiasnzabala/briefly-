@@ -25,14 +25,39 @@ export interface BriefEvent {
 }
 
 export const COUNTRIES = [
+  // América del Sur
   { code: "AR", name: "Argentina" },
   { code: "BR", name: "Brasil" },
-  { code: "ES", name: "España" },
-  { code: "MX", name: "México" },
   { code: "CL", name: "Chile" },
+  { code: "CO", name: "Colombia" },
+  { code: "PE", name: "Perú" },
   { code: "VE", name: "Venezuela" },
+  { code: "EC", name: "Ecuador" },
+  { code: "UY", name: "Uruguay" },
+  { code: "BO", name: "Bolivia" },
+  { code: "PY", name: "Paraguay" },
+  // América del Norte / Central
+  { code: "MX", name: "México" },
   { code: "US", name: "Estados Unidos" },
+  { code: "CA", name: "Canadá" },
+  { code: "CU", name: "Cuba" },
+  { code: "DO", name: "Rep. Dominicana" },
+  { code: "CR", name: "Costa Rica" },
+  { code: "GT", name: "Guatemala" },
+  // Europa
+  { code: "ES", name: "España" },
   { code: "IT", name: "Italia" },
+  { code: "FR", name: "Francia" },
+  { code: "DE", name: "Alemania" },
+  { code: "GB", name: "Reino Unido" },
+  { code: "PT", name: "Portugal" },
+  // Otros
+  { code: "CN", name: "China" },
+  { code: "JP", name: "Japón" },
+  { code: "RU", name: "Rusia" },
+  { code: "IN", name: "India" },
+  { code: "IL", name: "Israel" },
+  { code: "UA", name: "Ucrania" },
 ];
 
 export const CATEGORIES: Category[] = [
