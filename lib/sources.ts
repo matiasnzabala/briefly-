@@ -9,14 +9,14 @@ export interface FeedSource {
    */
   isGoogleNews?: boolean;
   /** Idioma de origen si NO es español, para traducir título y resumen. */
-  lang?: "pt" | "it";
+  lang?: "pt" | "it" | "fr" | "de" | "en" | "ja" | "ru" | "zh-CN" | "iw" | "uk";
 }
 
 function googleNews(
   country: string,
   hl: string,
   gl: string,
-  lang?: "pt" | "it"
+  lang?: FeedSource["lang"]
 ): FeedSource {
   return {
     name: "Google News",
@@ -108,17 +108,17 @@ export const SOURCES: FeedSource[] = [
   googleNews("GT", "es-419", "GT"),
 
   // Europa adicional
-  googleNews("FR", "fr", "FR", "it"),   // reutilizamos traducción para francés por ahora
-  googleNews("DE", "de", "DE", "it"),
-  googleNews("GB", "en-GB", "GB"),
+  googleNews("FR", "fr", "FR", "fr"),
+  googleNews("DE", "de", "DE", "de"),
+  googleNews("GB", "en-GB", "GB", "en"),
   googleNews("PT", "pt-PT", "PT", "pt"),
-  googleNews("CA", "en-CA", "CA"),
+  googleNews("CA", "en-CA", "CA", "en"),
 
   // Otros
-  googleNews("JP", "ja", "JP"),
-  googleNews("IN", "en-IN", "IN"),
-  googleNews("RU", "ru", "RU"),
-  googleNews("CN", "zh-CN", "CN"),
-  googleNews("IL", "iw", "IL"),
-  googleNews("UA", "uk", "UA"),
+  googleNews("JP", "ja", "JP", "ja"),
+  googleNews("IN", "en-IN", "IN", "en"),
+  googleNews("RU", "ru", "RU", "ru"),
+  googleNews("CN", "zh-CN", "CN", "zh-CN"),
+  googleNews("IL", "iw", "IL", "iw"),
+  googleNews("UA", "uk", "UA", "uk"),
 ];
