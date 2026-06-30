@@ -8,7 +8,7 @@ import {
   type Category,
   type Period,
 } from "@/lib/mock-data";
-import DolarTicker from "./DolarTicker";
+import TopTicker from "./TopTicker";
 import WorldCupPanel from "./WorldCupPanel";
 
 const PERIOD_LABEL: Record<Period, string> = {
@@ -171,7 +171,7 @@ export default function BriefFeed() {
   return (
     <div className="w-full max-w-5xl mx-auto px-4 py-10 flex flex-col gap-6">
       <div className="border-b border-neutral-900 pb-3">
-        <DolarTicker />
+        <TopTicker />
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8 items-start">
