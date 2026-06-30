@@ -18,6 +18,26 @@ const PERIOD_LABEL: Record<Period, string> = {
 
 const TOP_OPTIONS = [5, 10, 20] as const;
 
+const PREFS_KEY = "briefly:prefs";
+
+interface StoredPrefs {
+  countries: string[];
+  categories: Category[];
+  period: Period;
+  topN: (typeof TOP_OPTIONS)[number];
+}
+
+function loadPrefs(): StoredPrefs | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(PREFS_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as StoredPrefs;
+  } catch {
+    return null;
+  }
+}
+
 const PERIOD_MS: Record<Period, number> = {
   today: 1000 * 60 * 60 * 24,
   week: 1000 * 60 * 60 * 24 * 7,
@@ -36,10 +56,23 @@ function importanceColor(score: number) {
 }
 
 export default function BriefFeed() {
-  const [countries, setCountries] = useState<string[]>(["AR"]);
-  const [categories, setCategories] = useState<Category[]>(CATEGORIES);
-  const [period, setPeriod] = useState<Period>("today");
-  const [topN, setTopN] = useState<(typeof TOP_OPTIONS)[number]>(10);
+  const [countries, setCountries] = useState<string[]>(
+    () => loadPrefs()?.countries ?? ["AR"]
+  );
+  const [categories, setCategories] = useState<Category[]>(
+    () => loadPrefs()?.categories ?? CATEGORIES
+  );
+  const [period, setPeriod] = useState<Period>(
+    () => loadPrefs()?.period ?? "today"
+  );
+  const [topN, setTopN] = useState<(typeof TOP_OPTIONS)[number]>(
+    () => loadPrefs()?.topN ?? 10
+  );
+
+  useEffect(() => {
+    const prefs: StoredPrefs = { countries, categories, period, topN };
+    window.localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
+  }, [countries, categories, period, topN]);
 
   const [liveEvents, setLiveEvents] = useState<BriefEvent[] | null>(null);
   const [loading, setLoading] = useState(true);
@@ -242,6 +275,23 @@ export default function BriefFeed() {
       </section>
 
       <section className="flex flex-col gap-4">
+        {loading &&
+          Array.from({ length: 3 }).map((_, i) => (
+            <div
+              key={i}
+              className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-5 flex flex-col gap-3 animate-pulse"
+            >
+              <div className="flex items-center justify-between">
+                <div className="h-3 w-20 rounded bg-neutral-800" />
+                <div className="h-5 w-24 rounded-full bg-neutral-800" />
+              </div>
+              <div className="h-5 w-3/4 rounded bg-neutral-800" />
+              <div className="h-4 w-full rounded bg-neutral-800" />
+              <div className="h-4 w-2/3 rounded bg-neutral-800" />
+              <div className="h-3 w-1/2 rounded bg-neutral-800" />
+            </div>
+          ))}
+
         {!loading && events.length > 0 && !expandedBeyondPeriod && (
           <p className="text-xs text-neutral-500">
             {eventsInPeriod.length} eventos encontrados en{" "}
