@@ -122,11 +122,9 @@ function categorize(title: string): Category {
 }
 
 const SIMILARITY_THRESHOLD = 0.22;
+// Umbral más alto para deduplicar entre países (requiere más palabras en común)
+const CROSS_COUNTRY_THRESHOLD = 0.35;
 
-// Agrupa solo dentro de cada país: dos artículos de países distintos nunca
-// se fusionan en un mismo evento, aunque cubran la misma noticia mundial
-// con titulares casi idénticos — si no, el evento le quedaba asignado a un
-// solo país arbitrario (el que aparecía primero) y los demás desaparecían.
 function clusterWithinCountry(articles: RawArticle[]): number[][] {
   const tokenized = articles.map((a) => tokenize(a.title));
   const used = new Array(articles.length).fill(false);
@@ -136,7 +134,6 @@ function clusterWithinCountry(articles: RawArticle[]): number[][] {
     if (used[i]) continue;
     const group = [i];
     used[i] = true;
-
     for (let j = i + 1; j < articles.length; j++) {
       if (used[j]) continue;
       if (jaccardSimilarity(tokenized[i], tokenized[j]) >= SIMILARITY_THRESHOLD) {
@@ -144,11 +141,57 @@ function clusterWithinCountry(articles: RawArticle[]): number[][] {
         used[j] = true;
       }
     }
-
     groups.push(group);
   }
 
   return groups;
+}
+
+// Fusiona eventos de distintos países que cubren la misma noticia mundial.
+// Mantiene todos los países como "countries" y combina fuentes.
+function deduplicateCrossCountry(events: GeneratedEvent[]): GeneratedEvent[] {
+  const tokenized = events.map((e) => tokenize(e.headline));
+  const used = new Array(events.length).fill(false);
+  const result: GeneratedEvent[] = [];
+
+  for (let i = 0; i < events.length; i++) {
+    if (used[i]) continue;
+    const group = [i];
+    used[i] = true;
+
+    for (let j = i + 1; j < events.length; j++) {
+      if (used[j]) continue;
+      if (events[i].category !== events[j].category) continue;
+      if (jaccardSimilarity(tokenized[i], tokenized[j]) >= CROSS_COUNTRY_THRESHOLD) {
+        group.push(j);
+        used[j] = true;
+      }
+    }
+
+    if (group.length === 1) {
+      result.push(events[i]);
+      continue;
+    }
+
+    // Merge: quedarse con el de mayor importancia como base, combinar fuentes
+    const sorted = group.map((idx) => events[idx]).sort((a, b) => b.importance - a.importance);
+    const base = sorted[0];
+    const allSources = sorted.flatMap((e) => e.sources);
+    const uniqueSources = Array.from(new Map(allSources.map((s) => [s.name, s])).values());
+    const countries = Array.from(new Set(sorted.map((e) => e.country)));
+
+    result.push({
+      ...base,
+      // Marcar como noticia multi-país usando el país del mejor evento
+      country: countries[0],
+      sourcesCount: uniqueSources.length,
+      sources: uniqueSources.slice(0, 6),
+      // Importancia sube por la cobertura internacional
+      importance: Math.min(100, base.importance + (group.length - 1) * 5),
+    });
+  }
+
+  return result;
 }
 
 export function clusterArticles(articles: RawArticle[]): GeneratedEvent[] {
@@ -191,10 +234,13 @@ export function clusterArticles(articles: RawArticle[]): GeneratedEvent[] {
     };
   });
 
+  // Deduplicar noticias internacionales cubiertas por múltiples países
+  const deduped = deduplicateCrossCountry(events);
+
   // Agrupar por país + categoría para que ningún país (ej. Argentina, con
   // más fuentes y por lo tanto scores más altos) le quite lugar a los demás.
   const byCountryCategory = new Map<string, GeneratedEvent[]>();
-  for (const event of events) {
+  for (const event of deduped) {
     const key = `${event.country}|${event.category}`;
     const list = byCountryCategory.get(key) ?? [];
     list.push(event);

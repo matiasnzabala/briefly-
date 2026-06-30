@@ -14,7 +14,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Briefly — Lo importante, en 2 minutos",
-  description: "Prototipo local de Briefly",
+  description: "Las noticias más importantes del día, sin ruido.",
+  applicationName: "Briefly",
+  appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "Briefly" },
+  viewport: { width: "device-width", initialScale: 1, maximumScale: 1 },
 };
 
 const THEME_INIT_SCRIPT = `

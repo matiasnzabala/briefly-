@@ -61,12 +61,37 @@ export const SOURCES: FeedSource[] = [
   },
   googleNews("AR", "es-419", "AR"),
 
-  // Resto de países: Google News por país (validado, sin XML roto ni 404)
+  // Brasil
   googleNews("BR", "pt-BR", "BR", "pt"),
+  { name: "Folha de S.Paulo", url: "https://feeds.folha.uol.com.br/emcimadahora/rss091.xml", country: "BR", lang: "pt" },
+  { name: "G1 / Globo", url: "https://g1.globo.com/rss/g1/", country: "BR", lang: "pt" },
+
+  // España
   googleNews("ES", "es", "ES"),
+  { name: "El País", url: "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada", country: "ES" },
+  { name: "El Mundo", url: "https://e00-elmundo.uecdn.es/elmundo/rss/portada.xml", country: "ES" },
+
+  // México
   googleNews("MX", "es-419", "MX"),
+  { name: "El Universal", url: "https://www.eluniversal.com.mx/rss.xml", country: "MX" },
+  { name: "Milenio", url: "https://www.milenio.com/rss", country: "MX" },
+
+  // Chile
   googleNews("CL", "es-419", "CL"),
+  { name: "La Tercera", url: "https://www.latercera.com/feed/", country: "CL" },
+  { name: "El Mostrador", url: "https://www.elmostrador.cl/feed/", country: "CL" },
+
+  // Venezuela
   googleNews("VE", "es-419", "VE"),
+  { name: "El Nacional", url: "https://www.el-nacional.com/feed/", country: "VE" },
+  { name: "Efecto Cocuyo", url: "https://efectococuyo.com/feed/", country: "VE" },
+
+  // Estados Unidos (en español)
   googleNews("US", "es-419", "US"),
+  { name: "BBC Mundo", url: "https://feeds.bbci.co.uk/mundo/rss.xml", country: "US" },
+
+  // Italia
   googleNews("IT", "it", "IT", "it"),
+  { name: "Corriere della Sera", url: "https://xml2.corriereobjects.it/rss/homepage.xml", country: "IT", lang: "it" },
+  { name: "La Repubblica", url: "https://www.repubblica.it/rss/homepage/rss2.0.xml", country: "IT", lang: "it" },
 ];

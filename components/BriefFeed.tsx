@@ -22,7 +22,7 @@ const PERIOD_LABEL: Record<Period, string> = {
 const TOP_OPTIONS = [5, 10, 20] as const;
 const PREFS_KEY = "briefly:prefs";
 const READ_KEY = "briefly:read";
-const REFRESH_INTERVAL_MS = 1000 * 60 * 10; // 10 minutos
+const REFRESH_INTERVAL_MS = 1000 * 60 * 10;
 
 interface StoredPrefs {
   countries: string[];
@@ -197,6 +197,8 @@ export default function BriefFeed({
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
+  const [search, setSearch] = useState("");
+
   // filtros
   const allCountriesSelected = COUNTRIES.every((c) => countries.includes(c.code));
   const allCategoriesSelected = CATEGORIES.every((c) => categories.includes(c));
@@ -231,10 +233,16 @@ export default function BriefFeed({
     });
   }, [candidates, period, now]);
 
-  const visibleEvents = useMemo(
-    () => (eventsInPeriod.length >= topN ? eventsInPeriod : candidates).slice(0, topN),
-    [eventsInPeriod, candidates, topN]
-  );
+  const searchQuery = search.trim().toLowerCase();
+  const visibleEvents = useMemo(() => {
+    const pool = (eventsInPeriod.length >= topN ? eventsInPeriod : candidates).slice(0, topN);
+    if (!searchQuery) return pool;
+    return pool.filter(
+      (e) =>
+        e.headline.toLowerCase().includes(searchQuery) ||
+        e.summary.toLowerCase().includes(searchQuery)
+    );
+  }, [eventsInPeriod, candidates, topN, searchQuery]);
 
   const expandedBeyondPeriod =
     eventsInPeriod.length < topN && visibleEvents.length > eventsInPeriod.length;
@@ -427,19 +435,42 @@ export default function BriefFeed({
             </div>
           </section>
 
+          {/* Búsqueda */}
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm pointer-events-none" style={{ color: "var(--text-faint)" }}>🔍</span>
+            <input
+              type="search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Buscar noticias…"
+              className="w-full rounded-xl px-4 py-2.5 pl-9 text-sm outline-none transition"
+              style={{
+                background: "var(--bg-card)",
+                border: "1px solid var(--border)",
+                color: "var(--text)",
+              }}
+            />
+          </div>
+
           {/* Lista */}
           <section className="flex flex-col gap-4">
-            {visibleEvents.length > 0 && !expandedBeyondPeriod && (
+            {visibleEvents.length > 0 && !expandedBeyondPeriod && !searchQuery && (
               <p className="text-xs" style={{ color: "var(--text-muted)" }}>
                 {eventsInPeriod.length} eventos en {PERIOD_LABEL[period].toLowerCase()}, mostrando los {visibleEvents.length} más importantes.
               </p>
             )}
-            {expandedBeyondPeriod && (
+            {expandedBeyondPeriod && !searchQuery && (
               <p className="text-xs text-amber-500 dark:text-amber-400">
                 Solo había {eventsInPeriod.length} eventos en {PERIOD_LABEL[period].toLowerCase()}; completamos hasta {visibleEvents.length} con eventos de fuera del periodo.
               </p>
             )}
-            {visibleEvents.length === 0 && (
+            {searchQuery && (
+              <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+                {visibleEvents.length === 0 ? "Sin resultados para" : `${visibleEvents.length} resultado${visibleEvents.length !== 1 ? "s" : ""} para`}{" "}
+                <span style={{ color: "var(--text)" }}>"{search.trim()}"</span>
+              </p>
+            )}
+            {visibleEvents.length === 0 && !searchQuery && (
               <p className="text-sm" style={{ color: "var(--text-muted)" }}>
                 No hay eventos para esta combinación de filtros. Probá con otras categorías o un periodo más amplio.
               </p>
@@ -509,8 +540,8 @@ export default function BriefFeed({
           </section>
         </div>
 
-        {/* Panel del Mundial — sticky en desktop */}
-        <div className="w-full lg:w-64 shrink-0 lg:sticky lg:top-6">
+        {/* Panel del Mundial — sticky en desktop, colapsado debajo en mobile */}
+        <div className="w-full lg:w-64 shrink-0 lg:sticky lg:top-6 order-last lg:order-none">
           <WorldCupPanel />
         </div>
       </div>
