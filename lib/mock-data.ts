@@ -22,7 +22,6 @@ export interface BriefEvent {
   sourcesCount: number;
   sources: NewsSource[];
   publishedAt: string;
-  imageUrl?: string;
 }
 
 export const COUNTRIES = [

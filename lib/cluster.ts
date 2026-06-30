@@ -188,7 +188,6 @@ export function clusterArticles(articles: RawArticle[]): GeneratedEvent[] {
         url: a.link,
       })),
       publishedAt: groupArticles[0].publishedAt ?? new Date().toISOString(),
-      imageUrl: groupArticles.find((a) => a.imageUrl)?.imageUrl,
     };
   });
 

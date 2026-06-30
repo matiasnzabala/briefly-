@@ -105,7 +105,17 @@ async function shareEvent(event: BriefEvent) {
   }
 }
 
-export default function BriefFeed() {
+interface BriefFeedProps {
+  initialEvents: BriefEvent[];
+  initialMode: "ai" | "keyword";
+  initialError?: string;
+}
+
+export default function BriefFeed({
+  initialEvents,
+  initialMode,
+  initialError,
+}: BriefFeedProps) {
   const [countries, setCountries] = useState<string[]>(
     () => loadPrefs()?.countries ?? ["AR"]
   );
@@ -124,48 +134,11 @@ export default function BriefFeed() {
     window.localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
   }, [countries, categories, period, topN]);
 
-  const [liveEvents, setLiveEvents] = useState<BriefEvent[] | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [usingMock, setUsingMock] = useState(false);
-  const [mode, setMode] = useState<"ai" | "keyword" | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function load() {
-      setLoading(true);
-      try {
-        const res = await fetch("/api/feed");
-        const json = await res.json();
-        if (cancelled) return;
-
-        if (!res.ok) {
-          setError(json.error ?? "Error al cargar el feed real");
-          setUsingMock(true);
-          setLiveEvents(null);
-        } else {
-          setLiveEvents(json.events);
-          setMode(json.mode ?? null);
-          setUsingMock(false);
-          setError(null);
-        }
-      } catch {
-        if (!cancelled) {
-          setError("No se pudo conectar con /api/feed");
-          setUsingMock(true);
-          setLiveEvents(null);
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-
-    load();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  // Los datos ya llegan resueltos desde el servidor (sin loading ni fetch
+  // del lado del cliente), así que solo caemos a mock si el RSS falló.
+  const usingMock = initialEvents.length === 0;
+  const mode = initialMode;
+  const error = initialError ?? null;
 
   function toggleCategory(cat: Category) {
     setCategories((prev) =>
@@ -183,7 +156,7 @@ export default function BriefFeed() {
     });
   }
 
-  const sourceEvents = liveEvents ?? MOCK_EVENTS;
+  const sourceEvents = initialEvents.length > 0 ? initialEvents : MOCK_EVENTS;
 
   const [now] = useState(() => Date.now());
 
@@ -257,21 +230,18 @@ export default function BriefFeed() {
         <p className="text-neutral-400 text-sm">
           Lo más importante, sin ruido.
         </p>
-        {loading && (
-          <p className="text-xs text-neutral-500">Cargando noticias reales…</p>
-        )}
-        {!loading && usingMock && (
+        {usingMock && (
           <p className="text-xs text-amber-400">
             Mostrando datos de ejemplo
             {error ? ` (${error})` : ""}.
           </p>
         )}
-        {!loading && !usingMock && mode === "keyword" && (
+        {!usingMock && mode === "keyword" && (
           <p className="text-xs text-sky-400">
             RSS reales agrupados por palabras clave (modo gratis, sin IA).
           </p>
         )}
-        {!loading && !usingMock && mode === "ai" && (
+        {!usingMock && mode === "ai" && (
           <p className="text-xs text-emerald-400">
             RSS reales resumidos con IA.
           </p>
@@ -353,31 +323,14 @@ export default function BriefFeed() {
       </section>
 
       <section className="flex flex-col gap-4">
-        {loading &&
-          Array.from({ length: 3 }).map((_, i) => (
-            <div
-              key={i}
-              className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-5 flex flex-col gap-3 animate-pulse"
-            >
-              <div className="flex items-center justify-between">
-                <div className="h-3 w-20 rounded bg-neutral-800" />
-                <div className="h-5 w-24 rounded-full bg-neutral-800" />
-              </div>
-              <div className="h-5 w-3/4 rounded bg-neutral-800" />
-              <div className="h-4 w-full rounded bg-neutral-800" />
-              <div className="h-4 w-2/3 rounded bg-neutral-800" />
-              <div className="h-3 w-1/2 rounded bg-neutral-800" />
-            </div>
-          ))}
-
-        {!loading && events.length > 0 && !expandedBeyondPeriod && (
+        {events.length > 0 && !expandedBeyondPeriod && (
           <p className="text-xs text-neutral-500">
             {eventsInPeriod.length} eventos encontrados en{" "}
             {PERIOD_LABEL[period].toLowerCase()}, mostrando los {events.length}{" "}
             más importantes.
           </p>
         )}
-        {!loading && expandedBeyondPeriod && (
+        {expandedBeyondPeriod && (
           <p className="text-xs text-amber-400">
             Solo había {eventsInPeriod.length} eventos en{" "}
             {PERIOD_LABEL[period].toLowerCase()}; completamos hasta {events.length}{" "}
@@ -385,7 +338,7 @@ export default function BriefFeed() {
           </p>
         )}
 
-        {events.length === 0 && !loading && (
+        {events.length === 0 && (
           <p className="text-neutral-500 text-sm">
             No hay eventos para esta combinación de filtros. Probá con otras
             categorías o un periodo más amplio.
@@ -398,24 +351,10 @@ export default function BriefFeed() {
             <article
               key={event.id}
               onClick={() => openEvent(event)}
-              className={`rounded-xl border border-neutral-800 bg-neutral-900/50 flex flex-col gap-3 cursor-pointer hover:border-neutral-700 transition overflow-hidden ${
+              className={`rounded-xl border border-neutral-800 bg-neutral-900/50 p-5 flex flex-col gap-3 cursor-pointer hover:border-neutral-700 transition ${
                 isRead ? "opacity-60" : ""
               }`}
             >
-              {event.imageUrl && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={event.imageUrl}
-                  alt=""
-                  loading="lazy"
-                  className="w-full h-40 object-cover"
-                  onError={(e) => {
-                    e.currentTarget.style.display = "none";
-                  }}
-                />
-              )}
-
-              <div className="px-5 pt-1 flex flex-col gap-3">
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-xs uppercase tracking-wide text-neutral-500">
                     {event.category}
@@ -463,7 +402,6 @@ export default function BriefFeed() {
                     {copiedId === event.id ? "Copiado ✓" : "Compartir"}
                   </button>
                 </div>
-              </div>
             </article>
           );
         })}

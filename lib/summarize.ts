@@ -20,7 +20,6 @@ export interface GeneratedEvent {
   sourcesCount: number;
   sources: { name: string; url: string }[];
   publishedAt: string;
-  imageUrl?: string;
 }
 
 export async function summarizeArticles(
@@ -113,7 +112,6 @@ Respondé ÚNICAMENTE con un JSON array válido, sin texto adicional, con este f
         url: a.link,
       })),
       publishedAt: groupArticles[0]?.publishedAt ?? new Date().toISOString(),
-      imageUrl: groupArticles.find((a) => a.imageUrl)?.imageUrl,
     };
   });
 }
