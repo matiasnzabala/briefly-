@@ -24,16 +24,7 @@ export interface BriefEvent {
   publishedAt: string;
 }
 
-export const COUNTRIES = [
-  { code: "AR", name: "Argentina" },
-  { code: "BR", name: "Brasil" },
-  { code: "ES", name: "España" },
-  { code: "MX", name: "México" },
-  { code: "CL", name: "Chile" },
-  { code: "UY", name: "Uruguay" },
-  { code: "CO", name: "Colombia" },
-  { code: "US", name: "Estados Unidos" },
-];
+export const COUNTRIES = [{ code: "AR", name: "Argentina" }];
 
 export const CATEGORIES: Category[] = [
   "Política",
@@ -117,35 +108,5 @@ export const MOCK_EVENTS: BriefEvent[] = [
     sourcesCount: 5,
     sources: [{ name: "Ámbito", url: "#" }],
     publishedAt: "2026-06-30T06:00:00Z",
-  },
-  {
-    id: "6",
-    country: "BR",
-    category: "Política",
-    headline: "Brasil aprueba reforma tributaria clave en el Senado",
-    summary:
-      "El Senado brasileño aprobó la reglamentación de la reforma tributaria, un paso considerado clave para simplificar el sistema impositivo.",
-    importance: 88,
-    sourcesCount: 18,
-    sources: [
-      { name: "Folha de S.Paulo", url: "#" },
-      { name: "G1", url: "#" },
-    ],
-    publishedAt: "2026-06-30T09:20:00Z",
-  },
-  {
-    id: "7",
-    country: "ES",
-    category: "Economía",
-    headline: "España registra récord de turismo en el primer semestre",
-    summary:
-      "El país recibió más de 45 millones de turistas internacionales entre enero y junio, un 8% más que el año anterior.",
-    importance: 70,
-    sourcesCount: 11,
-    sources: [
-      { name: "El País", url: "#" },
-      { name: "ABC", url: "#" },
-    ],
-    publishedAt: "2026-06-30T08:00:00Z",
   },
 ];
