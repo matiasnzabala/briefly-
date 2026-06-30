@@ -24,6 +24,30 @@ const WEATHER_CODE_LABEL: Record<number, string> = {
   99: "Tormenta con granizo",
 };
 
+const WEATHER_CODE_EMOJI: Record<number, string> = {
+  0: "☀️",
+  1: "🌤️",
+  2: "⛅",
+  3: "☁️",
+  45: "🌫️",
+  48: "🌫️",
+  51: "🌦️",
+  53: "🌦️",
+  55: "🌧️",
+  61: "🌧️",
+  63: "🌧️",
+  65: "🌧️",
+  71: "🌨️",
+  73: "🌨️",
+  75: "❄️",
+  80: "🌦️",
+  81: "🌧️",
+  82: "⛈️",
+  95: "⛈️",
+  96: "⛈️",
+  99: "⛈️",
+};
+
 let cache: { data: object; expiresAt: number } | null = null;
 const CACHE_TTL_MS = 1000 * 60 * 20; // 20 minutos
 
@@ -44,6 +68,7 @@ export async function GET() {
     const data = {
       temperature: json.current?.temperature_2m ?? null,
       description: WEATHER_CODE_LABEL[code] ?? "—",
+      emoji: WEATHER_CODE_EMOJI[code] ?? "",
     };
 
     cache = { data, expiresAt: Date.now() + CACHE_TTL_MS };

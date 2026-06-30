@@ -31,6 +31,26 @@ interface SportsDbEvent {
   intHomeScoreExtra: string | null;
   intAwayScoreExtra: string | null;
   strResult: string | null;
+  strStatus: string | null;
+}
+
+// TheSportsDB usa strStatus para el estado en vivo: "NS" (no empezado),
+// "1H"/"2H"/"HT"/"ET" (en curso) o "FT"/"AET"/"Penalties"/"Match Finished"
+// (terminado). El marcador (intHomeScore/intAwayScore) ya viene cargado
+// mientras el partido está en curso, así que no alcanza para saber si
+// terminó.
+const FINISHED_STATUSES = new Set([
+  "FT",
+  "AET",
+  "PEN",
+  "PENALTIES",
+  "MATCH FINISHED",
+  "FINISHED",
+]);
+
+function isFinished(status: string | null): boolean {
+  if (!status) return false;
+  return FINISHED_STATUSES.has(status.trim().toUpperCase());
 }
 
 function dateOffset(daysAgo: number): string {
@@ -104,7 +124,7 @@ export async function GET() {
         awayScore,
         penaltyHomeScore,
         penaltyAwayScore,
-        finished: homeScore !== null && awayScore !== null,
+        finished: isFinished(e.strStatus),
       };
     });
 

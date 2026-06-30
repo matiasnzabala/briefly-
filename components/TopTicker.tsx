@@ -8,6 +8,7 @@ const SHOWN_CASAS = ["oficial", "blue"];
 interface Clima {
   temperature: number | null;
   description: string;
+  emoji: string;
 }
 
 interface Feriado {
@@ -94,6 +95,7 @@ export default function TopTicker() {
       {clima && clima.temperature !== null && (
         <span className="flex items-center gap-1">
           <span className="text-neutral-500">Buenos Aires:</span>
+          {clima.emoji && <span>{clima.emoji}</span>}
           <span className="text-neutral-200 font-medium">
             {Math.round(clima.temperature)}°C
           </span>

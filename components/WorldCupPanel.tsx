@@ -194,7 +194,7 @@ function MatchRow({ match }: { match: WorldCupMatch }) {
           <FlagIcon team={match.home} /> {teamName(match.home)} vs.{" "}
           <FlagIcon team={match.away} /> {teamName(match.away)}
         </span>
-        {match.finished && (
+        {match.homeScore !== null && match.awayScore !== null && (
           <span className="text-sm font-medium text-neutral-100 shrink-0">
             {match.homeScore} - {match.awayScore}
             {match.penaltyHomeScore !== null &&
@@ -210,7 +210,9 @@ function MatchRow({ match }: { match: WorldCupMatch }) {
       <span className="text-xs text-neutral-500">
         {match.finished
           ? `Finalizado — ${formatDay(match.time)}`
-          : `${formatDay(match.time)}, ${formatTime(match.time)} hs`}
+          : match.homeScore !== null && match.awayScore !== null
+            ? "En vivo"
+            : `${formatDay(match.time)}, ${formatTime(match.time)} hs`}
       </span>
     </div>
   );
