@@ -22,8 +22,13 @@ function isIos() {
 
 export default function InstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [showIosHint, setShowIosHint] = useState(false);
-  const [visible, setVisible] = useState(false);
+  const [showIosHint] = useState(() => typeof window !== "undefined" && isIos());
+  const [visible, setVisible] = useState(() => {
+    if (typeof window === "undefined") return false;
+    if (window.localStorage.getItem(DISMISS_KEY) === "1") return false;
+    if (isStandalone()) return false;
+    return isIos();
+  });
 
   useEffect(() => {
     if (window.localStorage.getItem(DISMISS_KEY) === "1") return;
@@ -36,12 +41,6 @@ export default function InstallPrompt() {
     }
 
     window.addEventListener("beforeinstallprompt", onBeforeInstallPrompt);
-
-    if (isIos()) {
-      setShowIosHint(true);
-      setVisible(true);
-    }
-
     return () => window.removeEventListener("beforeinstallprompt", onBeforeInstallPrompt);
   }, []);
 

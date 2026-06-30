@@ -293,7 +293,20 @@ export default function BriefFeed({
         </div>
       )}
 
-      <div className="pb-3 flex items-center justify-between gap-3" style={{ borderBottom: "1px solid var(--border)" }}>
+      <div className="sticky-header -mx-4 px-4 pb-3 flex items-center justify-between gap-3" style={{ borderBottom: "1px solid var(--border)" }}>
+        <div className="flex items-baseline gap-2 shrink-0">
+          <h1
+            className="text-xl font-bold tracking-tight"
+            style={{
+              background: "linear-gradient(135deg, var(--gradient-from) 0%, var(--gradient-to) 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+            }}
+          >
+            briefly
+          </h1>
+        </div>
         <div className="flex-1 min-w-0">
           {mounted ? <TopTicker /> : <TickerSkeleton />}
         </div>
@@ -305,21 +318,14 @@ export default function BriefFeed({
 
           {/* Header */}
           <header className="flex flex-col gap-1.5">
-            <div className="flex items-baseline gap-2">
-              <h1
-                className="text-3xl font-bold tracking-tight"
-                style={{
-                  background: "linear-gradient(135deg, var(--gradient-from) 0%, var(--gradient-to) 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}
-              >
-                briefly
-              </h1>
-              <span className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>· lo importante, sin ruido</span>
+            <span className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>Lo importante, sin ruido</span>
+            <div className="flex items-center gap-1.5">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inline-flex h-full w-full rounded-full opacity-75 animate-ping" style={{ background: "var(--accent)" }} />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full" style={{ background: "var(--accent)" }} />
+              </span>
+              <span className="text-xs" style={{ color: "var(--text-faint)" }}>{freshnessLabel}</span>
             </div>
-            <span className="text-xs" style={{ color: "var(--text-faint)" }}>{freshnessLabel}</span>
             {usingMock && (
               <p className="text-xs text-amber-500 dark:text-amber-400">
                 Mostrando datos de ejemplo{error ? ` (${error})` : ""}.
@@ -456,36 +462,42 @@ export default function BriefFeed({
                   key={event.id}
                   onClick={() => openEvent(event)}
                   style={mounted ? {
-                    animationDelay: `${i * 50}ms`,
+                    animationDelay: `${i * 40}ms`,
                     animationFillMode: "both",
-                    borderLeft: `3px solid ${importanceBar(event.importance).color}`,
                     opacity: isRead ? 0.55 : 1,
-                  } : {
-                    borderLeft: `3px solid ${importanceBar(event.importance).color}`,
-                  }}
-                  className={`glass rounded-xl p-5 flex flex-col gap-3 cursor-pointer transition-all ${mounted ? "animate-fadeIn" : ""}`}
+                  } : undefined}
+                  className={`glass card-hover rounded-2xl p-5 flex flex-col gap-3 cursor-pointer ${mounted ? "animate-fadeIn" : ""}`}
                 >
                   <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2">
-                      {isRead && <span className="text-xs" style={{ color: "var(--text-faint)" }}>✓</span>}
-                      <span className="text-xs uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span
+                        className="h-2 w-2 rounded-full shrink-0"
+                        style={{ background: importanceBar(event.importance).color }}
+                        aria-hidden
+                      />
+                      <span className="text-xs font-semibold uppercase tracking-wide truncate" style={{ color: "var(--accent-text)" }}>
                         {event.category}
-                        {countries.length > 1 && ` — ${countryName(event.country)}`}
                       </span>
+                      {countries.length > 1 && (
+                        <span className="text-xs truncate" style={{ color: "var(--text-faint)" }}>
+                          — {countryName(event.country)}
+                        </span>
+                      )}
+                      {isRead && <span className="text-xs shrink-0" style={{ color: "var(--text-faint)" }}>✓ leído</span>}
                     </div>
                     <span className={`text-xs px-2 py-0.5 rounded-full border shrink-0 ${badge.className}`}>
                       {badge.label}
                     </span>
                   </div>
 
-                  <h2 className="text-lg font-medium leading-snug" style={{ color: "var(--text)" }}>{event.headline}</h2>
+                  <h2 className="text-lg font-semibold leading-snug" style={{ color: "var(--text)" }}>{event.headline}</h2>
                   <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{event.summary}</p>
 
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div className="flex flex-wrap items-center gap-2 text-xs" style={{ color: "var(--text-faint)" }}>
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-1" style={{ borderTop: "1px solid var(--border)" }}>
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs pt-2" style={{ color: "var(--text-faint)" }}>
                       <span>{formatRelativeTime(event.publishedAt, now)}</span>
-                      <span style={{ color: "var(--text-faint)" }}>·</span>
-                      <span>{event.sourcesCount} fuentes —</span>
+                      <span>·</span>
+                      <span>{event.sourcesCount} fuentes:</span>
                       {event.sources.map((s) => (
                         <a
                           key={s.name}
@@ -500,10 +512,10 @@ export default function BriefFeed({
                     </div>
                     <button
                       onClick={(e) => { e.stopPropagation(); handleShare(event); }}
-                      className="text-xs transition-colors shrink-0"
-                      style={{ color: "var(--text-faint)" }}
+                      className="text-xs font-medium transition-colors shrink-0 mt-2"
+                      style={{ color: copiedId === event.id ? "var(--accent-text)" : "var(--text-faint)" }}
                     >
-                      {copiedId === event.id ? "Copiado ✓" : "Compartir"}
+                      {copiedId === event.id ? "Copiado ✓" : "Compartir ↗"}
                     </button>
                   </div>
                 </article>
@@ -526,7 +538,7 @@ export default function BriefFeed({
           onClick={() => setSelectedEvent(null)}
         >
           <div
-            className="glass rounded-xl max-w-lg w-full max-h-[85vh] overflow-y-auto p-6 flex flex-col gap-4"
+            className="glass rounded-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto p-6 flex flex-col gap-4"
             style={{ background: "var(--modal-bg)" }}
             onClick={(e) => e.stopPropagation()}
           >
