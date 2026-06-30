@@ -28,6 +28,11 @@ export const COUNTRIES = [
   { code: "AR", name: "Argentina" },
   { code: "BR", name: "Brasil" },
   { code: "ES", name: "España" },
+  { code: "MX", name: "México" },
+  { code: "CL", name: "Chile" },
+  { code: "UY", name: "Uruguay" },
+  { code: "CO", name: "Colombia" },
+  { code: "US", name: "Estados Unidos" },
 ];
 
 export const CATEGORIES: Category[] = [

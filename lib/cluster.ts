@@ -23,7 +23,10 @@ const CATEGORY_KEYWORDS: Record<Category, string[]> = {
     "economía", "economico", "económico", "precios", "salarios", "fmi",
     "deuda", "pbi", "mercado", "banco central", "tasa", "impuesto",
     "presupuesto", "recesion", "recesión", "exportaciones", "importaciones",
-    "rebajas", "consumo",
+    "rebajas", "consumo", "bolsa", "acciones", "bonos", "riesgo pais",
+    "riesgo país", "tipo de cambio", "blue", "billete", "ahorro",
+    "jubilacion", "jubilación", "ajuste fiscal", "subsidio", "subsidios",
+    "tarifas", "combustible", "nafta", "cripto", "bitcoin",
   ],
   Política: [
     "gobierno", "presidente", "ministro", "ministra", "congreso", "senado",
@@ -137,5 +140,17 @@ export function clusterArticles(articles: RawArticle[]): GeneratedEvent[] {
     };
   });
 
-  return events.sort((a, b) => b.importance - a.importance).slice(0, 20);
+  const byCategory = new Map<Category, GeneratedEvent[]>();
+  for (const event of events) {
+    const list = byCategory.get(event.category) ?? [];
+    list.push(event);
+    byCategory.set(event.category, list);
+  }
+
+  const TOP_PER_CATEGORY = 20;
+  const balanced = Array.from(byCategory.values()).flatMap((list) =>
+    list.sort((a, b) => b.importance - a.importance).slice(0, TOP_PER_CATEGORY)
+  );
+
+  return balanced.sort((a, b) => b.importance - a.importance);
 }

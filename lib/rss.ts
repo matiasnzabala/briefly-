@@ -16,7 +16,7 @@ export async function fetchAllArticles(): Promise<RawArticle[]> {
   const results = await Promise.allSettled(
     SOURCES.map(async (source) => {
       const feed = await parser.parseURL(source.url);
-      return (feed.items ?? []).slice(0, 20).map((item) => ({
+      return (feed.items ?? []).slice(0, 35).map((item) => ({
         title: item.title ?? "",
         link: item.link ?? "",
         source: source.name,

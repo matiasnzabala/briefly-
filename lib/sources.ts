@@ -25,4 +25,9 @@ export const SOURCES: FeedSource[] = [
     url: "https://www.ambito.com/contenidos/rss/home.xml",
     country: "AR",
   },
+  {
+    name: "El Cronista",
+    url: "https://www.cronista.com/files/rss/news.xml",
+    country: "AR",
+  },
 ];

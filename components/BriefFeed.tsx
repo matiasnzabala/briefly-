@@ -26,7 +26,7 @@ function importanceColor(score: number) {
 }
 
 export default function BriefFeed() {
-  const [country, setCountry] = useState("AR");
+  const [countries, setCountries] = useState<string[]>(["AR"]);
   const [categories, setCategories] = useState<Category[]>(CATEGORIES);
   const [period, setPeriod] = useState<Period>("today");
   const [topN, setTopN] = useState<(typeof TOP_OPTIONS)[number]>(10);
@@ -80,6 +80,16 @@ export default function BriefFeed() {
     );
   }
 
+  function toggleCountry(code: string) {
+    setCountries((prev) => {
+      if (prev.includes(code)) {
+        const next = prev.filter((c) => c !== code);
+        return next.length === 0 ? prev : next;
+      }
+      return [...prev, code];
+    });
+  }
+
   const sourceEvents = useMemo(() => {
     if (!liveEvents) return MOCK_EVENTS;
     const liveCountries = new Set(liveEvents.map((e) => e.country));
@@ -91,10 +101,12 @@ export default function BriefFeed() {
 
   const events = useMemo(() => {
     return sourceEvents
-      .filter((e) => e.country === country && categories.includes(e.category))
+      .filter(
+        (e) => countries.includes(e.country) && categories.includes(e.category)
+      )
       .sort((a, b) => b.importance - a.importance)
       .slice(0, topN);
-  }, [sourceEvents, country, categories, topN]);
+  }, [sourceEvents, countries, categories, topN]);
 
   return (
     <div className="w-full max-w-2xl mx-auto px-4 py-10 flex flex-col gap-8">
@@ -125,19 +137,26 @@ export default function BriefFeed() {
       </header>
 
       <section className="flex flex-col gap-4">
-        <div className="flex flex-wrap gap-2 items-center">
-          <select
-            value={country}
-            onChange={(e) => setCountry(e.target.value)}
-            className="bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2 text-sm"
-          >
+        <div>
+          <p className="text-xs text-neutral-500 mb-2">Países</p>
+          <div className="flex flex-wrap gap-2">
             {COUNTRIES.map((c) => (
-              <option key={c.code} value={c.code}>
+              <button
+                key={c.code}
+                onClick={() => toggleCountry(c.code)}
+                className={`px-3 py-1 text-xs rounded-full border transition ${
+                  countries.includes(c.code)
+                    ? "bg-neutral-100 text-neutral-900 border-neutral-100"
+                    : "border-neutral-700 text-neutral-400 hover:border-neutral-500"
+                }`}
+              >
                 {c.name}
-              </option>
+              </button>
             ))}
-          </select>
+          </div>
+        </div>
 
+        <div className="flex flex-wrap gap-2 items-center">
           <div className="flex gap-1 bg-neutral-900 border border-neutral-800 rounded-lg p-1">
             {(Object.keys(PERIOD_LABEL) as Period[]).map((p) => (
               <button
@@ -171,6 +190,8 @@ export default function BriefFeed() {
           </div>
         </div>
 
+        <div>
+        <p className="text-xs text-neutral-500 mb-2">Categorías</p>
         <div className="flex flex-wrap gap-2">
           {CATEGORIES.map((cat) => (
             <button
@@ -185,6 +206,7 @@ export default function BriefFeed() {
               {cat}
             </button>
           ))}
+        </div>
         </div>
       </section>
 
