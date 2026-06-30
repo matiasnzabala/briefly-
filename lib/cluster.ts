@@ -17,11 +17,20 @@ const CATEGORY_KEYWORDS: Record<Category, string[]> = {
     "deportivo", "messi", "liga", "futbolista", "entrenador", "dt",
     "16avos", "octavos", "cuartos", "estadio", "cancha", "arquero",
     "tenis", "basquet", "básquet", "rugby", "boxeo", "juegos olimpicos",
+    "atletismo", "ciclismo", "natacion", "natación", "formula 1", "formula1",
+    "nba", "nfl", "mlb", "nhl", "lakers", "bulls", "celtics", "knicks",
+    "lebron", "curry", "jordan", "kobe", "neymar", "ronaldo", "mbappé",
+    "mbappe", "haaland", "champions", "premier", "laliga", "serie a",
+    "bundesliga", "libertadores", "sudamericana", "uefa",
+    "deporte", "deportes", "atleta", "atletas", "olimpiadas", "olimpico",
+    "olimpíadas", "olímpico", "medalla", "podio", "race", "sprint",
+    "wimbledon", "roland garros", "us open", "australian open",
     // portugués
     "futebol", "gols", "jogo", "jogos", "campeonato", "selecao", "seleção",
-    "time", "treinador", "estadio",
+    "time", "treinador", "estadio", "esporte", "esportes",
     // italiano
     "calcio", "partita", "campionato", "squadra", "allenatore", "gara",
+    "sport", "sportivo",
   ],
   Economía: [
     "inflacion", "inflación", "dolar", "dólar", "indec", "economia",
