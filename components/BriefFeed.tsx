@@ -11,6 +11,7 @@ import {
 } from "@/lib/mock-data";
 import TopTicker from "./TopTicker";
 import WorldCupPanel from "./WorldCupPanel";
+import ThemeToggle from "./ThemeToggle";
 
 const PERIOD_LABEL: Record<Period, string> = {
   today: "Hoy",
@@ -83,10 +84,10 @@ function importanceBar(score: number): { color: string; label: string } {
 
 function importanceBadge(score: number): { label: string; className: string } {
   if (score >= 85)
-    return { label: "🔴 Alta", className: "bg-red-500/15 text-red-300 border-red-500/30" };
+    return { label: "🔴 Alta", className: "bg-red-500/15 text-red-400 dark:text-red-300 border-red-500/30" };
   if (score >= 65)
-    return { label: "🟡 Media", className: "bg-amber-500/15 text-amber-300 border-amber-500/30" };
-  return { label: "🟢 Menor", className: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30" };
+    return { label: "🟡 Media", className: "bg-amber-500/15 text-amber-600 dark:text-amber-300 border-amber-500/30" };
+  return { label: "🟢 Menor", className: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 border-emerald-500/30" };
 }
 
 async function shareEvent(event: BriefEvent) {
@@ -105,7 +106,7 @@ function TickerSkeleton() {
         <span
           key={w}
           className="h-7 rounded-full animate-pulse"
-          style={{ width: w, background: "rgba(255,255,255,0.06)" }}
+          style={{ width: w, background: "var(--skeleton)" }}
         />
       ))}
     </div>
@@ -276,15 +277,19 @@ export default function BriefFeed({
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 animate-fadeIn">
           <button
             onClick={applyUpdate}
-            className="flex items-center gap-2 bg-neutral-100 text-neutral-900 text-sm font-medium px-4 py-2.5 rounded-full shadow-lg hover:bg-white transition"
+            className="flex items-center gap-2 text-sm font-medium px-4 py-2.5 rounded-full shadow-lg transition"
+            style={{ background: "var(--text)", color: "var(--bg)" }}
           >
             ↑ {newCount} nueva{newCount > 1 ? "s noticias" : " noticia"} — actualizar
           </button>
         </div>
       )}
 
-      <div className="pb-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-        {mounted ? <TopTicker /> : <TickerSkeleton />}
+      <div className="pb-3 flex items-center justify-between gap-3" style={{ borderBottom: "1px solid var(--border)" }}>
+        <div className="flex-1 min-w-0">
+          {mounted ? <TopTicker /> : <TickerSkeleton />}
+        </div>
+        <ThemeToggle />
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8 items-start">
@@ -296,7 +301,7 @@ export default function BriefFeed({
               <h1
                 className="text-3xl font-bold tracking-tight"
                 style={{
-                  background: "linear-gradient(135deg, #a78bfa 0%, #6366f1 100%)",
+                  background: "linear-gradient(135deg, var(--gradient-from) 0%, var(--gradient-to) 100%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   backgroundClip: "text",
@@ -304,19 +309,19 @@ export default function BriefFeed({
               >
                 briefly
               </h1>
-              <span className="text-sm font-medium" style={{ color: "rgba(255,255,255,0.25)" }}>· lo importante, sin ruido</span>
+              <span className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>· lo importante, sin ruido</span>
             </div>
-            <span className="text-xs" style={{ color: "rgba(255,255,255,0.2)" }}>{freshnessLabel}</span>
+            <span className="text-xs" style={{ color: "var(--text-faint)" }}>{freshnessLabel}</span>
             {usingMock && (
-              <p className="text-xs text-amber-400">
+              <p className="text-xs text-amber-500 dark:text-amber-400">
                 Mostrando datos de ejemplo{error ? ` (${error})` : ""}.
               </p>
             )}
             {!usingMock && mode === "keyword" && (
-              <p className="text-xs text-sky-400">RSS reales agrupados por palabras clave.</p>
+              <p className="text-xs text-sky-600 dark:text-sky-400">RSS reales agrupados por palabras clave.</p>
             )}
             {!usingMock && mode === "ai" && (
-              <p className="text-xs text-emerald-400">RSS reales resumidos con IA.</p>
+              <p className="text-xs text-emerald-600 dark:text-emerald-400">RSS reales resumidos con IA.</p>
             )}
           </header>
 
@@ -324,14 +329,15 @@ export default function BriefFeed({
           <section className="flex flex-col gap-4">
             <div>
               <div className="flex items-center justify-between mb-2">
-                <p className="text-xs text-neutral-500">Países</p>
+                <p className="text-xs" style={{ color: "var(--text-muted)" }}>Países</p>
                 <button
                   onClick={() =>
                     setCountries(
                       allCountriesSelected ? ["AR"] : COUNTRIES.map((c) => c.code)
                     )
                   }
-                  className="text-xs text-neutral-600 hover:text-neutral-400 transition"
+                  className="text-xs transition"
+                  style={{ color: "var(--text-faint)" }}
                 >
                   {allCountriesSelected ? "Ninguno" : "Todos"}
                 </button>
@@ -344,8 +350,8 @@ export default function BriefFeed({
                     className="px-3 py-1 text-xs rounded-full border transition"
                     style={
                       countries.includes(c.code)
-                        ? { background: "rgba(139,92,246,0.2)", borderColor: "rgba(139,92,246,0.5)", color: "#c4b5fd" }
-                        : { background: "transparent", borderColor: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.35)" }
+                        ? { background: "var(--accent-bg)", borderColor: "var(--accent-border)", color: "var(--accent-text)" }
+                        : { background: "transparent", borderColor: "var(--border)", color: "var(--text-muted)" }
                     }
                   >
                     {c.name}
@@ -355,7 +361,7 @@ export default function BriefFeed({
             </div>
 
             <div className="flex flex-wrap gap-2 items-center">
-              <div className="flex gap-1 rounded-lg p-1" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
+              <div className="flex gap-1 rounded-lg p-1" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
                 {(Object.keys(PERIOD_LABEL) as Period[]).map((p) => (
                   <button
                     key={p}
@@ -363,15 +369,15 @@ export default function BriefFeed({
                     className="px-3 py-1.5 text-sm rounded-md transition"
                     style={
                       period === p
-                        ? { background: "rgba(139,92,246,0.25)", color: "#c4b5fd" }
-                        : { color: "rgba(255,255,255,0.35)" }
+                        ? { background: "var(--accent-bg)", color: "var(--accent-text)" }
+                        : { color: "var(--text-muted)" }
                     }
                   >
                     {PERIOD_LABEL[p]}
                   </button>
                 ))}
               </div>
-              <div className="flex gap-1 rounded-lg p-1" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
+              <div className="flex gap-1 rounded-lg p-1" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
                 {TOP_OPTIONS.map((n) => (
                   <button
                     key={n}
@@ -379,8 +385,8 @@ export default function BriefFeed({
                     className="px-3 py-1.5 text-sm rounded-md transition"
                     style={
                       topN === n
-                        ? { background: "rgba(139,92,246,0.25)", color: "#c4b5fd" }
-                        : { color: "rgba(255,255,255,0.35)" }
+                        ? { background: "var(--accent-bg)", color: "var(--accent-text)" }
+                        : { color: "var(--text-muted)" }
                     }
                   >
                     Top {n}
@@ -391,12 +397,13 @@ export default function BriefFeed({
 
             <div>
               <div className="flex items-center justify-between mb-2">
-                <p className="text-xs text-neutral-500">Categorías</p>
+                <p className="text-xs" style={{ color: "var(--text-muted)" }}>Categorías</p>
                 <button
                   onClick={() =>
                     setCategories(allCategoriesSelected ? [] : [...CATEGORIES])
                   }
-                  className="text-xs text-neutral-600 hover:text-neutral-400 transition"
+                  className="text-xs transition"
+                  style={{ color: "var(--text-faint)" }}
                 >
                   {allCategoriesSelected ? "Ninguna" : "Todas"}
                 </button>
@@ -409,8 +416,8 @@ export default function BriefFeed({
                     className="px-3 py-1 text-xs rounded-full border transition"
                     style={
                       categories.includes(cat)
-                        ? { background: "rgba(139,92,246,0.2)", borderColor: "rgba(139,92,246,0.5)", color: "#c4b5fd" }
-                        : { background: "transparent", borderColor: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.35)" }
+                        ? { background: "var(--accent-bg)", borderColor: "var(--accent-border)", color: "var(--accent-text)" }
+                        : { background: "transparent", borderColor: "var(--border)", color: "var(--text-muted)" }
                     }
                   >
                     {cat}
@@ -423,17 +430,17 @@ export default function BriefFeed({
           {/* Lista */}
           <section className="flex flex-col gap-4">
             {visibleEvents.length > 0 && !expandedBeyondPeriod && (
-              <p className="text-xs text-neutral-500">
+              <p className="text-xs" style={{ color: "var(--text-muted)" }}>
                 {eventsInPeriod.length} eventos en {PERIOD_LABEL[period].toLowerCase()}, mostrando los {visibleEvents.length} más importantes.
               </p>
             )}
             {expandedBeyondPeriod && (
-              <p className="text-xs text-amber-400">
+              <p className="text-xs text-amber-500 dark:text-amber-400">
                 Solo había {eventsInPeriod.length} eventos en {PERIOD_LABEL[period].toLowerCase()}; completamos hasta {visibleEvents.length} con eventos de fuera del periodo.
               </p>
             )}
             {visibleEvents.length === 0 && (
-              <p className="text-neutral-500 text-sm">
+              <p className="text-sm" style={{ color: "var(--text-muted)" }}>
                 No hay eventos para esta combinación de filtros. Probá con otras categorías o un periodo más amplio.
               </p>
             )}
@@ -449,7 +456,7 @@ export default function BriefFeed({
                     animationDelay: `${i * 50}ms`,
                     animationFillMode: "both",
                     borderLeft: `3px solid ${importanceBar(event.importance).color}`,
-                    opacity: isRead ? 0.45 : 1,
+                    opacity: isRead ? 0.55 : 1,
                   } : {
                     borderLeft: `3px solid ${importanceBar(event.importance).color}`,
                   }}
@@ -457,8 +464,8 @@ export default function BriefFeed({
                 >
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2">
-                      {isRead && <span className="text-xs" style={{ color: "rgba(255,255,255,0.25)" }}>✓</span>}
-                      <span className="text-xs uppercase tracking-wide" style={{ color: "rgba(255,255,255,0.3)" }}>
+                      {isRead && <span className="text-xs" style={{ color: "var(--text-faint)" }}>✓</span>}
+                      <span className="text-xs uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>
                         {event.category}
                         {countries.length > 1 && ` — ${countryName(event.country)}`}
                       </span>
@@ -468,21 +475,21 @@ export default function BriefFeed({
                     </span>
                   </div>
 
-                  <h2 className="text-lg font-medium leading-snug text-neutral-100">{event.headline}</h2>
-                  <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.45)" }}>{event.summary}</p>
+                  <h2 className="text-lg font-medium leading-snug" style={{ color: "var(--text)" }}>{event.headline}</h2>
+                  <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{event.summary}</p>
 
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div className="flex flex-wrap items-center gap-2 text-xs" style={{ color: "rgba(255,255,255,0.25)" }}>
+                    <div className="flex flex-wrap items-center gap-2 text-xs" style={{ color: "var(--text-faint)" }}>
                       <span>{formatRelativeTime(event.publishedAt, now)}</span>
-                      <span style={{ color: "rgba(255,255,255,0.12)" }}>·</span>
+                      <span style={{ color: "var(--text-faint)" }}>·</span>
                       <span>{event.sourcesCount} fuentes —</span>
                       {event.sources.map((s) => (
                         <a
                           key={s.name}
                           href={s.url}
                           onClick={(e) => e.stopPropagation()}
-                          className="hover:text-violet-400 transition-colors"
-                          style={{ textDecoration: "underline", textDecorationColor: "rgba(255,255,255,0.15)" }}
+                          className="hover:underline transition-colors"
+                          style={{ color: "var(--text-muted)" }}
                         >
                           {s.name}
                         </a>
@@ -490,8 +497,8 @@ export default function BriefFeed({
                     </div>
                     <button
                       onClick={(e) => { e.stopPropagation(); handleShare(event); }}
-                      className="text-xs hover:text-violet-400 transition-colors shrink-0"
-                      style={{ color: "rgba(255,255,255,0.25)" }}
+                      className="text-xs transition-colors shrink-0"
+                      style={{ color: "var(--text-faint)" }}
                     >
                       {copiedId === event.id ? "Copiado ✓" : "Compartir"}
                     </button>
@@ -511,43 +518,45 @@ export default function BriefFeed({
       {/* Modal */}
       {selectedEvent && (
         <div
-          className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50 animate-fadeIn"
+          className="fixed inset-0 flex items-center justify-center p-4 z-50 animate-fadeIn"
+          style={{ background: "var(--overlay)" }}
           onClick={() => setSelectedEvent(null)}
         >
           <div
             className="glass rounded-xl max-w-lg w-full max-h-[85vh] overflow-y-auto p-6 flex flex-col gap-4"
-          style={{ background: "rgba(10,12,20,0.92)" }}
+            style={{ background: "var(--modal-bg)" }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between gap-3">
               <div className="flex flex-col gap-1">
-                <span className="text-xs uppercase tracking-wide text-neutral-500">
+                <span className="text-xs uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>
                   {selectedEvent.category}
                   {countries.length > 1 && ` — ${countryName(selectedEvent.country)}`}
                 </span>
-                <span className="text-xs text-neutral-600">
+                <span className="text-xs" style={{ color: "var(--text-faint)" }}>
                   {formatRelativeTime(selectedEvent.publishedAt, now)}
                 </span>
               </div>
               <button
                 onClick={() => setSelectedEvent(null)}
-                className="text-neutral-500 hover:text-neutral-200 text-sm"
+                className="text-sm transition"
+                style={{ color: "var(--text-muted)" }}
                 aria-label="Cerrar"
               >
                 ✕
               </button>
             </div>
 
-            <h2 className="text-xl font-medium leading-snug">{selectedEvent.headline}</h2>
+            <h2 className="text-xl font-medium leading-snug" style={{ color: "var(--text)" }}>{selectedEvent.headline}</h2>
 
             <span className={`text-xs px-2 py-0.5 rounded-full border self-start ${importanceBadge(selectedEvent.importance).className}`}>
               {importanceBadge(selectedEvent.importance).label}
             </span>
 
-            <p className="text-sm text-neutral-300 leading-relaxed">{selectedEvent.summary}</p>
+            <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{selectedEvent.summary}</p>
 
-            <div className="flex flex-col gap-2 pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
-              <p className="text-xs" style={{ color: "rgba(255,255,255,0.3)" }}>{selectedEvent.sourcesCount} fuentes citadas</p>
+            <div className="flex flex-col gap-2 pt-2" style={{ borderTop: "1px solid var(--border)" }}>
+              <p className="text-xs" style={{ color: "var(--text-muted)" }}>{selectedEvent.sourcesCount} fuentes citadas</p>
               <div className="flex flex-col gap-1.5">
                 {selectedEvent.sources.map((s) => (
                   <a
@@ -555,7 +564,8 @@ export default function BriefFeed({
                     href={s.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-sky-400 hover:underline flex items-center gap-1"
+                    className="text-sm hover:underline flex items-center gap-1"
+                    style={{ color: "var(--accent-text)" }}
                   >
                     {s.name} <span className="text-xs">↗</span>
                   </a>
@@ -569,7 +579,11 @@ export default function BriefFeed({
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-1 w-full text-center text-sm font-medium py-2.5 rounded-lg transition"
-              style={{ background: "linear-gradient(135deg, rgba(139,92,246,0.3), rgba(99,102,241,0.3))", border: "1px solid rgba(139,92,246,0.4)", color: "#c4b5fd" }}
+                style={{
+                  background: `linear-gradient(135deg, var(--accent-bg), var(--accent-bg))`,
+                  border: "1px solid var(--accent-border)",
+                  color: "var(--accent-text)",
+                }}
               >
                 Leer nota completa ↗
               </a>

@@ -187,32 +187,32 @@ function MatchRow({ match }: { match: WorldCupMatch }) {
     <div
       className="rounded-lg p-3 flex flex-col gap-1"
       style={{
-        background: "rgba(255,255,255,0.04)",
-        border: isLive ? "1px solid rgba(139,92,246,0.35)" : "1px solid rgba(255,255,255,0.07)",
+        background: "var(--bg-card)",
+        border: isLive ? "1px solid var(--accent-border)" : "1px solid var(--border)",
       }}
     >
       {match.stage && (
-        <span className="text-[10px] uppercase tracking-wide" style={{ color: "rgba(255,255,255,0.25)" }}>
+        <span className="text-[10px] uppercase tracking-wide" style={{ color: "var(--text-faint)" }}>
           {match.stage}
         </span>
       )}
       <div className="flex items-center justify-between gap-2">
-        <span className="text-sm text-neutral-200 flex items-center gap-1.5 flex-wrap">
+        <span className="text-sm flex items-center gap-1.5 flex-wrap" style={{ color: "var(--text-secondary)" }}>
           <FlagIcon team={match.home} /> {teamName(match.home)} vs.{" "}
           <FlagIcon team={match.away} /> {teamName(match.away)}
         </span>
         {match.homeScore !== null && match.awayScore !== null && (
-          <span className="text-sm font-medium text-neutral-100 shrink-0">
+          <span className="text-sm font-medium shrink-0" style={{ color: "var(--text)" }}>
             {match.homeScore} - {match.awayScore}
             {match.penaltyHomeScore !== null && match.penaltyAwayScore !== null && (
-              <span className="font-normal" style={{ color: "rgba(255,255,255,0.3)" }}>
+              <span className="font-normal" style={{ color: "var(--text-muted)" }}>
                 {" "}(pen. {match.penaltyHomeScore}-{match.penaltyAwayScore})
               </span>
             )}
           </span>
         )}
       </div>
-      <span className="text-xs" style={{ color: isLive ? "#a78bfa" : "rgba(255,255,255,0.3)" }}>
+      <span className="text-xs" style={{ color: isLive ? "var(--accent-text)" : "var(--text-muted)" }}>
         {match.finished
           ? `Finalizado — ${formatDay(match.time)}`
           : isLive
@@ -252,22 +252,22 @@ export default function WorldCupPanel() {
   return (
     <aside className="flex flex-col gap-5">
       <div className="flex flex-col gap-3">
-        <h2 className="text-sm font-medium" style={{ color: "rgba(255,255,255,0.6)" }}>
+        <h2 className="text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
           Mundial 2026 — Hoy
         </h2>
 
         {error && (
-          <p className="text-xs" style={{ color: "rgba(255,255,255,0.25)" }}>
+          <p className="text-xs" style={{ color: "var(--text-faint)" }}>
             No se pudo cargar la info del Mundial.
           </p>
         )}
 
         {!error && matches === null && (
-          <p className="text-xs" style={{ color: "rgba(255,255,255,0.25)" }}>Cargando partidos…</p>
+          <p className="text-xs" style={{ color: "var(--text-faint)" }}>Cargando partidos…</p>
         )}
 
         {matches !== null && todayMatches.length === 0 && !error && (
-          <p className="text-xs" style={{ color: "rgba(255,255,255,0.25)" }}>
+          <p className="text-xs" style={{ color: "var(--text-faint)" }}>
             No hay partidos programados para hoy.
           </p>
         )}
@@ -281,7 +281,7 @@ export default function WorldCupPanel() {
 
       {recentMatches && recentMatches.length > 0 && (
         <div className="flex flex-col gap-3">
-          <h2 className="text-sm font-medium" style={{ color: "rgba(255,255,255,0.6)" }}>
+          <h2 className="text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
             Resultados recientes
           </h2>
           <div className="flex flex-col gap-2">

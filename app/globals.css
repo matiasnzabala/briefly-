@@ -5,9 +5,53 @@
   --font-mono: var(--font-geist-mono);
 }
 
+:root {
+  --bg: #f1f1f7;
+  --bg-card: #ffffff;
+  --border: rgba(15, 15, 35, 0.08);
+  --border-strong: rgba(15, 15, 35, 0.14);
+  --text: #15151f;
+  --text-secondary: rgba(15, 15, 35, 0.55);
+  --text-muted: rgba(15, 15, 35, 0.38);
+  --text-faint: rgba(15, 15, 35, 0.18);
+  --accent: #c026d3;
+  --accent-text: #a21caf;
+  --accent-bg: rgba(192, 38, 211, 0.1);
+  --accent-border: rgba(192, 38, 211, 0.35);
+  --card-shadow: 0 1px 2px rgba(15, 15, 35, 0.04), 0 4px 12px rgba(15, 15, 35, 0.05);
+  --skeleton: rgba(15, 15, 35, 0.07);
+  --modal-bg: #ffffff;
+  --overlay: rgba(15, 15, 25, 0.4);
+  --gradient-from: #c026d3;
+  --gradient-to: #6366f1;
+}
+
+.dark {
+  --bg: #080b12;
+  --bg-card: rgba(255, 255, 255, 0.035);
+  --border: rgba(255, 255, 255, 0.07);
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --text: #f4f4f6;
+  --text-secondary: rgba(255, 255, 255, 0.45);
+  --text-muted: rgba(255, 255, 255, 0.25);
+  --text-faint: rgba(255, 255, 255, 0.12);
+  --accent: #a78bfa;
+  --accent-text: #c4b5fd;
+  --accent-bg: rgba(139, 92, 246, 0.2);
+  --accent-border: rgba(139, 92, 246, 0.5);
+  --card-shadow: none;
+  --skeleton: rgba(255, 255, 255, 0.06);
+  --modal-bg: rgba(10, 12, 20, 0.92);
+  --overlay: rgba(0, 0, 0, 0.7);
+  --gradient-from: #a78bfa;
+  --gradient-to: #6366f1;
+}
+
 body {
   font-family: Arial, Helvetica, sans-serif;
-  background-color: #080b12;
+  background-color: var(--bg);
+  color: var(--text);
+  transition: background-color 0.2s ease;
 }
 
 @keyframes fadeIn {
@@ -19,15 +63,14 @@ body {
   animation: fadeIn 0.3s ease-out;
 }
 
-/* glass card */
 .glass {
-  background: rgba(255,255,255,0.035);
+  background: var(--bg-card);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.07);
+  border: 1px solid var(--border);
+  box-shadow: var(--card-shadow);
 }
 
 .glass:hover {
-  border-color: rgba(139,92,246,0.35);
-  background: rgba(255,255,255,0.055);
+  border-color: var(--accent-border);
 }
