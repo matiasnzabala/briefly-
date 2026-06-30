@@ -48,6 +48,17 @@ function countryName(code: string): string {
   return COUNTRIES.find((c) => c.code === code)?.name ?? code;
 }
 
+function formatPublishedAt(iso: string): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleString("es-AR", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 function importanceColor(score: number) {
   if (score >= 85) return "bg-red-500/20 text-red-300 border-red-500/30";
   if (score >= 65)
@@ -171,6 +182,17 @@ export default function BriefFeed() {
 
   const expandedBeyondPeriod =
     eventsInPeriod.length < topN && events.length > eventsInPeriod.length;
+
+  const [selectedEvent, setSelectedEvent] = useState<BriefEvent | null>(null);
+
+  useEffect(() => {
+    if (!selectedEvent) return;
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setSelectedEvent(null);
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [selectedEvent]);
 
   return (
     <div className="w-full max-w-2xl mx-auto px-4 py-10 flex flex-col gap-8">
@@ -317,7 +339,8 @@ export default function BriefFeed() {
         {events.map((event) => (
           <article
             key={event.id}
-            className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-5 flex flex-col gap-3"
+            onClick={() => setSelectedEvent(event)}
+            className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-5 flex flex-col gap-3 cursor-pointer hover:border-neutral-700 transition"
           >
             <div className="flex items-center justify-between gap-3">
               <span className="text-xs uppercase tracking-wide text-neutral-500">
@@ -347,6 +370,7 @@ export default function BriefFeed() {
                 <a
                   key={s.name}
                   href={s.url}
+                  onClick={(e) => e.stopPropagation()}
                   className="underline decoration-neutral-700 hover:decoration-neutral-400"
                 >
                   {s.name}
@@ -356,6 +380,71 @@ export default function BriefFeed() {
           </article>
         ))}
       </section>
+
+      {selectedEvent && (
+        <div
+          className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50"
+          onClick={() => setSelectedEvent(null)}
+        >
+          <div
+            className="bg-neutral-950 border border-neutral-800 rounded-xl max-w-lg w-full max-h-[85vh] overflow-y-auto p-6 flex flex-col gap-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex flex-col gap-1">
+                <span className="text-xs uppercase tracking-wide text-neutral-500">
+                  {selectedEvent.category} — {countryName(selectedEvent.country)}
+                </span>
+                <span className="text-xs text-neutral-600">
+                  {formatPublishedAt(selectedEvent.publishedAt)}
+                </span>
+              </div>
+              <button
+                onClick={() => setSelectedEvent(null)}
+                className="text-neutral-500 hover:text-neutral-200 text-sm"
+                aria-label="Cerrar"
+              >
+                ✕
+              </button>
+            </div>
+
+            <h2 className="text-xl font-medium leading-snug">
+              {selectedEvent.headline}
+            </h2>
+
+            <span
+              className={`text-xs px-2 py-0.5 rounded-full border self-start ${importanceColor(
+                selectedEvent.importance
+              )}`}
+            >
+              Importancia {selectedEvent.importance}
+            </span>
+
+            <p className="text-sm text-neutral-300 leading-relaxed">
+              {selectedEvent.summary}
+            </p>
+
+            <div className="flex flex-col gap-2 pt-2 border-t border-neutral-800">
+              <p className="text-xs text-neutral-500">
+                {selectedEvent.sourcesCount} fuentes citadas
+              </p>
+              <div className="flex flex-col gap-1">
+                {selectedEvent.sources.map((s) => (
+                  <a
+                    key={s.name}
+                    href={s.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-sky-400 hover:underline"
+                  >
+                    {s.name} ↗
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

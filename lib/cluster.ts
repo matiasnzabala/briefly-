@@ -137,7 +137,7 @@ export function clusterArticles(articles: RawArticle[]): GeneratedEvent[] {
         "Resumen no disponible (modo sin IA).",
       importance: Math.min(100, 40 + uniqueSources.length * 15),
       sourcesCount: uniqueSources.length,
-      sources: uniqueSources.slice(0, 3).map((a) => ({
+      sources: uniqueSources.slice(0, 6).map((a) => ({
         name: a.source,
         url: a.link,
       })),

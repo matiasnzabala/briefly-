@@ -107,7 +107,7 @@ Respondé ÚNICAMENTE con un JSON array válido, sin texto adicional, con este f
       summary: group.summary,
       importance: Math.max(0, Math.min(100, Math.round(group.importance))),
       sourcesCount: uniqueSources.length,
-      sources: uniqueSources.slice(0, 3).map((a) => ({
+      sources: uniqueSources.slice(0, 6).map((a) => ({
         name: a.source,
         url: a.link,
       })),
