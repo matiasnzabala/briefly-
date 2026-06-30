@@ -30,7 +30,7 @@ export const COUNTRIES = [
   { code: "ES", name: "España" },
   { code: "MX", name: "México" },
   { code: "CL", name: "Chile" },
-  { code: "CO", name: "Colombia" },
+  { code: "VE", name: "Venezuela" },
   { code: "US", name: "Estados Unidos" },
   { code: "IT", name: "Italia" },
 ];

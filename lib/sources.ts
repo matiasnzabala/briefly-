@@ -66,7 +66,7 @@ export const SOURCES: FeedSource[] = [
   googleNews("ES", "es", "ES"),
   googleNews("MX", "es-419", "MX"),
   googleNews("CL", "es-419", "CL"),
-  googleNews("CO", "es-419", "CO"),
+  googleNews("VE", "es-419", "VE"),
   googleNews("US", "es-419", "US"),
   googleNews("IT", "it", "IT", "it"),
 ];
