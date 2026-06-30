@@ -111,24 +111,33 @@ export default function BriefFeed() {
 
   const [now] = useState(() => Date.now());
 
+  const candidates = useMemo(() => {
+    return sourceEvents
+      .filter(
+        (e) => countries.includes(e.country) && categories.includes(e.category)
+      )
+      .sort((a, b) => b.importance - a.importance);
+  }, [sourceEvents, countries, categories]);
+
   const eventsInPeriod = useMemo(() => {
     const windowMs = PERIOD_MS[period];
-
-    return sourceEvents
-      .filter((e) => {
-        if (!countries.includes(e.country)) return false;
-        if (!categories.includes(e.category)) return false;
-        const publishedTime = new Date(e.publishedAt).getTime();
-        if (Number.isNaN(publishedTime)) return true;
-        return now - publishedTime <= windowMs;
-      })
-      .sort((a, b) => b.importance - a.importance);
-  }, [sourceEvents, countries, categories, period, now]);
+    return candidates.filter((e) => {
+      const publishedTime = new Date(e.publishedAt).getTime();
+      if (Number.isNaN(publishedTime)) return true;
+      return now - publishedTime <= windowMs;
+    });
+  }, [candidates, period, now]);
 
   const events = useMemo(
-    () => eventsInPeriod.slice(0, topN),
-    [eventsInPeriod, topN]
+    () => (eventsInPeriod.length >= topN ? eventsInPeriod : candidates).slice(
+      0,
+      topN
+    ),
+    [eventsInPeriod, candidates, topN]
   );
+
+  const expandedBeyondPeriod =
+    eventsInPeriod.length < topN && events.length > eventsInPeriod.length;
 
   return (
     <div className="w-full max-w-2xl mx-auto px-4 py-10 flex flex-col gap-8">
@@ -233,11 +242,18 @@ export default function BriefFeed() {
       </section>
 
       <section className="flex flex-col gap-4">
-        {!loading && eventsInPeriod.length > 0 && (
+        {!loading && events.length > 0 && !expandedBeyondPeriod && (
           <p className="text-xs text-neutral-500">
             {eventsInPeriod.length} eventos encontrados en{" "}
             {PERIOD_LABEL[period].toLowerCase()}, mostrando los {events.length}{" "}
             más importantes.
+          </p>
+        )}
+        {!loading && expandedBeyondPeriod && (
+          <p className="text-xs text-amber-400">
+            Solo había {eventsInPeriod.length} eventos en{" "}
+            {PERIOD_LABEL[period].toLowerCase()}; completamos hasta {events.length}{" "}
+            con eventos de fuera de ese periodo.
           </p>
         )}
 
