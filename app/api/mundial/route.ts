@@ -70,11 +70,15 @@ export async function GET() {
       const awayScore =
         e.intAwayScore !== null ? Number(e.intAwayScore) : null;
 
+      // strTimestamp viene en UTC pero sin sufijo "Z", así que hay que
+      // agregarlo explícitamente o el navegador lo interpreta como hora local.
+      const time = e.strTimestamp ? `${e.strTimestamp}Z` : `${today}T00:00:00Z`;
+
       return {
         id: e.idEvent,
         home: e.strHomeTeam,
         away: e.strAwayTeam,
-        time: e.strTimestamp ?? today,
+        time,
         stage: e.strStage ?? "",
         homeScore,
         awayScore,

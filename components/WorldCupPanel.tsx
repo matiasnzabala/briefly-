@@ -66,29 +66,42 @@ function teamName(name: string): string {
   return TEAM_NAMES_ES[name] ?? name;
 }
 
+const AR_TZ = "America/Argentina/Buenos_Aires";
+
 function formatTime(iso: string): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return "";
   return date.toLocaleTimeString("es-AR", {
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: AR_TZ,
   });
 }
 
 function formatDay(iso: string): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return "";
-  return date.toLocaleDateString("es-AR", { day: "2-digit", month: "short" });
+  return date.toLocaleDateString("es-AR", {
+    day: "2-digit",
+    month: "short",
+    timeZone: AR_TZ,
+  });
+}
+
+function arDateParts(date: Date) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: AR_TZ,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(date);
+  const get = (type: string) => parts.find((p) => p.type === type)?.value;
+  return `${get("year")}-${get("month")}-${get("day")}`;
 }
 
 function isToday(iso: string): boolean {
   const date = new Date(iso);
-  const now = new Date();
-  return (
-    date.getUTCFullYear() === now.getUTCFullYear() &&
-    date.getUTCMonth() === now.getUTCMonth() &&
-    date.getUTCDate() === now.getUTCDate()
-  );
+  return arDateParts(date) === arDateParts(new Date());
 }
 
 function MatchRow({ match }: { match: WorldCupMatch }) {
