@@ -2,7 +2,19 @@ import Parser from "rss-parser";
 import { SOURCES, type FeedSource } from "./sources";
 import { translateBatch } from "./translate";
 
-const parser = new Parser({ timeout: 10000 });
+interface MediaContentField {
+  $?: { url?: string; medium?: string };
+}
+interface EnclosureField {
+  url?: string;
+  type?: string;
+}
+
+const parser: Parser<unknown, { "media:content"?: MediaContentField; enclosure?: EnclosureField }> =
+  new Parser({
+    timeout: 10000,
+    customFields: { item: ["media:content", "enclosure"] },
+  });
 
 export interface RawArticle {
   title: string;
@@ -11,6 +23,22 @@ export interface RawArticle {
   country: string;
   publishedAt: string | undefined;
   contentSnippet: string | undefined;
+  imageUrl: string | undefined;
+}
+
+function extractImageUrl(item: {
+  "media:content"?: MediaContentField;
+  enclosure?: EnclosureField;
+}): string | undefined {
+  const mediaUrl = item["media:content"]?.$?.url;
+  if (mediaUrl) return mediaUrl;
+
+  const enclosureUrl = item.enclosure?.url;
+  if (enclosureUrl && item.enclosure?.type?.startsWith("image/")) {
+    return enclosureUrl;
+  }
+
+  return undefined;
 }
 
 function splitGoogleNewsTitle(rawTitle: string): {
@@ -30,6 +58,8 @@ async function fetchSource(source: FeedSource): Promise<RawArticle[]> {
   const articles = (feed.items ?? []).slice(0, 35).map((item) => {
     const rawTitle = item.title ?? "";
 
+    const imageUrl = extractImageUrl(item);
+
     if (source.isGoogleNews) {
       const { title, source: parsedSource } = splitGoogleNewsTitle(rawTitle);
       return {
@@ -39,6 +69,7 @@ async function fetchSource(source: FeedSource): Promise<RawArticle[]> {
         country: source.country,
         publishedAt: item.isoDate,
         contentSnippet: item.contentSnippet?.slice(0, 300),
+        imageUrl,
       };
     }
 
@@ -49,6 +80,7 @@ async function fetchSource(source: FeedSource): Promise<RawArticle[]> {
       country: source.country,
       publishedAt: item.isoDate,
       contentSnippet: item.contentSnippet?.slice(0, 300),
+      imageUrl,
     };
   });
 

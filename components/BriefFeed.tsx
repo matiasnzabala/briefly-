@@ -68,6 +68,43 @@ function importanceColor(score: number) {
   return "bg-emerald-500/20 text-emerald-300 border-emerald-500/30";
 }
 
+const READ_KEY = "briefly:read";
+
+function readKeyFor(event: BriefEvent): string {
+  return `${event.country}|${event.headline}`;
+}
+
+function loadReadSet(): Set<string> {
+  if (typeof window === "undefined") return new Set();
+  try {
+    const raw = window.localStorage.getItem(READ_KEY);
+    if (!raw) return new Set();
+    return new Set(JSON.parse(raw) as string[]);
+  } catch {
+    return new Set();
+  }
+}
+
+async function shareEvent(event: BriefEvent) {
+  const url = event.sources[0]?.url ?? window.location.href;
+  const shareData = { title: event.headline, text: event.summary, url };
+
+  if (navigator.share) {
+    try {
+      await navigator.share(shareData);
+      return;
+    } catch {
+      // usuario canceló o falló — caemos al portapapeles
+    }
+  }
+
+  try {
+    await navigator.clipboard.writeText(url);
+  } catch {
+    // sin permiso de portapapeles, no hacemos nada más
+  }
+}
+
 export default function BriefFeed() {
   const [countries, setCountries] = useState<string[]>(
     () => loadPrefs()?.countries ?? ["AR"]
@@ -179,6 +216,24 @@ export default function BriefFeed() {
     eventsInPeriod.length < topN && events.length > eventsInPeriod.length;
 
   const [selectedEvent, setSelectedEvent] = useState<BriefEvent | null>(null);
+  const [readSet, setReadSet] = useState<Set<string>>(() => loadReadSet());
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  function openEvent(event: BriefEvent) {
+    setSelectedEvent(event);
+    setReadSet((prev) => {
+      const next = new Set(prev);
+      next.add(readKeyFor(event));
+      window.localStorage.setItem(READ_KEY, JSON.stringify([...next]));
+      return next;
+    });
+  }
+
+  async function handleShare(event: BriefEvent) {
+    await shareEvent(event);
+    setCopiedId(event.id);
+    setTimeout(() => setCopiedId((id) => (id === event.id ? null : id)), 2000);
+  }
 
   useEffect(() => {
     if (!selectedEvent) return;
@@ -337,48 +392,81 @@ export default function BriefFeed() {
           </p>
         )}
 
-        {events.map((event) => (
-          <article
-            key={event.id}
-            onClick={() => setSelectedEvent(event)}
-            className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-5 flex flex-col gap-3 cursor-pointer hover:border-neutral-700 transition"
-          >
-            <div className="flex items-center justify-between gap-3">
-              <span className="text-xs uppercase tracking-wide text-neutral-500">
-                {event.category}
-                {countries.length > 1 && ` — ${countryName(event.country)}`}
-              </span>
-              <span
-                className={`text-xs px-2 py-0.5 rounded-full border ${importanceColor(
-                  event.importance
-                )}`}
-              >
-                Importancia {event.importance}
-              </span>
-            </div>
+        {events.map((event) => {
+          const isRead = readSet.has(readKeyFor(event));
+          return (
+            <article
+              key={event.id}
+              onClick={() => openEvent(event)}
+              className={`rounded-xl border border-neutral-800 bg-neutral-900/50 flex flex-col gap-3 cursor-pointer hover:border-neutral-700 transition overflow-hidden ${
+                isRead ? "opacity-60" : ""
+              }`}
+            >
+              {event.imageUrl && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={event.imageUrl}
+                  alt=""
+                  loading="lazy"
+                  className="w-full h-40 object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                  }}
+                />
+              )}
 
-            <h2 className="text-lg font-medium leading-snug">
-              {event.headline}
-            </h2>
-            <p className="text-sm text-neutral-400 leading-relaxed">
-              {event.summary}
-            </p>
+              <div className="px-5 pt-1 flex flex-col gap-3">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-xs uppercase tracking-wide text-neutral-500">
+                    {event.category}
+                    {countries.length > 1 &&
+                      ` — ${countryName(event.country)}`}
+                    {isRead && " · Leído"}
+                  </span>
+                  <span
+                    className={`text-xs px-2 py-0.5 rounded-full border ${importanceColor(
+                      event.importance
+                    )}`}
+                  >
+                    Importancia {event.importance}
+                  </span>
+                </div>
 
-            <div className="flex flex-wrap items-center gap-2 text-xs text-neutral-500 pt-1">
-              <span>{event.sourcesCount} fuentes —</span>
-              {event.sources.map((s) => (
-                <a
-                  key={s.name}
-                  href={s.url}
-                  onClick={(e) => e.stopPropagation()}
-                  className="underline decoration-neutral-700 hover:decoration-neutral-400"
-                >
-                  {s.name}
-                </a>
-              ))}
-            </div>
-          </article>
-        ))}
+                <h2 className="text-lg font-medium leading-snug">
+                  {event.headline}
+                </h2>
+                <p className="text-sm text-neutral-400 leading-relaxed">
+                  {event.summary}
+                </p>
+
+                <div className="flex flex-wrap items-center justify-between gap-2 pb-5">
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-neutral-500">
+                    <span>{event.sourcesCount} fuentes —</span>
+                    {event.sources.map((s) => (
+                      <a
+                        key={s.name}
+                        href={s.url}
+                        onClick={(e) => e.stopPropagation()}
+                        className="underline decoration-neutral-700 hover:decoration-neutral-400"
+                      >
+                        {s.name}
+                      </a>
+                    ))}
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleShare(event);
+                    }}
+                    className="text-xs text-neutral-500 hover:text-neutral-200 shrink-0"
+                  >
+                    {copiedId === event.id ? "Copiado ✓" : "Compartir"}
+                  </button>
+                </div>
+              </div>
+            </article>
+          );
+        })}
       </section>
       </div>
 
