@@ -9,6 +9,8 @@ import {
   type Category,
   type Period,
 } from "@/lib/mock-data";
+import DolarTicker from "./DolarTicker";
+import WorldCupPanel from "./WorldCupPanel";
 
 const PERIOD_LABEL: Record<Period, string> = {
   today: "Hoy",
@@ -195,7 +197,13 @@ export default function BriefFeed() {
   }, [selectedEvent]);
 
   return (
-    <div className="w-full max-w-2xl mx-auto px-4 py-10 flex flex-col gap-8">
+    <div className="w-full max-w-5xl mx-auto px-4 py-10 flex flex-col gap-6">
+      <div className="border-b border-neutral-900 pb-3">
+        <DolarTicker />
+      </div>
+
+      <div className="flex flex-col lg:flex-row gap-8 items-start">
+      <div className="w-full max-w-2xl mx-auto lg:mx-0 flex flex-col gap-8">
       <header className="flex flex-col gap-1">
         <h1 className="text-2xl font-semibold tracking-tight">Briefly</h1>
         <p className="text-neutral-400 text-sm">
@@ -380,6 +388,10 @@ export default function BriefFeed() {
           </article>
         ))}
       </section>
+      </div>
+
+      <WorldCupPanel />
+      </div>
 
       {selectedEvent && (
         <div
