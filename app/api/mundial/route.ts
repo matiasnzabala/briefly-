@@ -15,6 +15,17 @@ export interface WorldCupMatch {
 
 const WORLD_CUP_LEAGUE_ID = "4429";
 const DAYS_BACK = 2;
+const DAYS_FORWARD = 1;
+const AR_TZ = "America/Argentina/Buenos_Aires";
+
+function arDateString(date: Date): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: AR_TZ,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(date);
+}
 
 let cache: { data: WorldCupMatch[]; expiresAt: number; date: string } | null =
   null;
@@ -58,9 +69,9 @@ function isFinished(status: string | null, kickoffIso: string | null): boolean {
   return false;
 }
 
-function dateOffset(daysAgo: number): string {
+function dateOffset(daysFromToday: number): string {
   const d = new Date();
-  d.setUTCDate(d.getUTCDate() - daysAgo);
+  d.setUTCDate(d.getUTCDate() + daysFromToday);
   return d.toISOString().slice(0, 10);
 }
 
@@ -75,16 +86,20 @@ async function fetchDay(date: string): Promise<SportsDbEvent[]> {
 }
 
 export async function GET() {
-  const today = new Date().toISOString().slice(0, 10);
+  const todayUTC = new Date().toISOString().slice(0, 10);
+  const todayAR = arDateString(new Date());
 
-  if (cache && cache.expiresAt > Date.now() && cache.date === today) {
+  if (cache && cache.expiresAt > Date.now() && cache.date === todayAR) {
     return NextResponse.json({ matches: cache.data });
   }
 
   try {
-    const days = Array.from({ length: DAYS_BACK + 1 }, (_, i) =>
-      dateOffset(i)
-    ).reverse();
+    // Fetchamos también el día UTC siguiente porque los partidos nocturnos
+    // en Argentina (UTC-3) suelen caer en el día calendario siguiente en UTC.
+    const days = Array.from(
+      { length: DAYS_BACK + DAYS_FORWARD + 1 },
+      (_, i) => dateOffset(DAYS_FORWARD - i)
+    );
 
     const results = await Promise.allSettled(days.map(fetchDay));
     const rawEvents = results
@@ -117,7 +132,7 @@ export async function GET() {
 
       // strTimestamp viene en UTC pero sin sufijo "Z", así que hay que
       // agregarlo explícitamente o el navegador lo interpreta como hora local.
-      const time = e.strTimestamp ? `${e.strTimestamp}Z` : `${today}T00:00:00Z`;
+      const time = e.strTimestamp ? `${e.strTimestamp}Z` : `${todayUTC}T00:00:00Z`;
 
       return {
         id: e.idEvent,
@@ -133,7 +148,7 @@ export async function GET() {
       };
     });
 
-    cache = { data: matches, expiresAt: Date.now() + CACHE_TTL_MS, date: today };
+    cache = { data: matches, expiresAt: Date.now() + CACHE_TTL_MS, date: todayAR };
 
     return NextResponse.json({ matches });
   } catch (err) {
