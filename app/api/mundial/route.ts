@@ -18,7 +18,7 @@ const DAYS_BACK = 2;
 
 let cache: { data: WorldCupMatch[]; expiresAt: number; date: string } | null =
   null;
-const CACHE_TTL_MS = 1000 * 60 * 15; // 15 minutos
+const CACHE_TTL_MS = 1000 * 60 * 5; // 5 minutos (más frecuente durante partidos)
 
 interface SportsDbEvent {
   idEvent: string;
@@ -48,9 +48,14 @@ const FINISHED_STATUSES = new Set([
   "FINISHED",
 ]);
 
-function isFinished(status: string | null): boolean {
-  if (!status) return false;
-  return FINISHED_STATUSES.has(status.trim().toUpperCase());
+function isFinished(status: string | null, kickoffIso: string | null): boolean {
+  if (status && FINISHED_STATUSES.has(status.trim().toUpperCase())) return true;
+  // fallback: si arrancó hace más de 2h30 con marcador, asumimos terminado
+  if (kickoffIso) {
+    const elapsed = Date.now() - new Date(`${kickoffIso}Z`).getTime();
+    if (elapsed > 1000 * 60 * 150) return true;
+  }
+  return false;
 }
 
 function dateOffset(daysAgo: number): string {
@@ -124,7 +129,7 @@ export async function GET() {
         awayScore,
         penaltyHomeScore,
         penaltyAwayScore,
-        finished: isFinished(e.strStatus),
+        finished: isFinished(e.strStatus, e.strTimestamp),
       };
     });
 
