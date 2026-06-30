@@ -8,6 +8,8 @@ export interface WorldCupMatch {
   stage: string;
   homeScore: number | null;
   awayScore: number | null;
+  penaltyHomeScore: number | null;
+  penaltyAwayScore: number | null;
   finished: boolean;
 }
 
@@ -26,6 +28,9 @@ interface SportsDbEvent {
   strStage: string | null;
   intHomeScore: string | null;
   intAwayScore: string | null;
+  intHomeScoreExtra: string | null;
+  intAwayScoreExtra: string | null;
+  strResult: string | null;
 }
 
 function dateOffset(daysAgo: number): string {
@@ -70,6 +75,21 @@ export async function GET() {
       const awayScore =
         e.intAwayScore !== null ? Number(e.intAwayScore) : null;
 
+      // intHomeScoreExtra/intAwayScoreExtra solo representan penales cuando
+      // strResult lo confirma; en otros casos pueden referirse a otra cosa
+      // (tiempo extra), así que no los mostramos como penales sin esa señal.
+      const decidedOnPenalties = (e.strResult ?? "")
+        .toLowerCase()
+        .includes("penalties");
+      const penaltyHomeScore =
+        decidedOnPenalties && e.intHomeScoreExtra !== null
+          ? Number(e.intHomeScoreExtra)
+          : null;
+      const penaltyAwayScore =
+        decidedOnPenalties && e.intAwayScoreExtra !== null
+          ? Number(e.intAwayScoreExtra)
+          : null;
+
       // strTimestamp viene en UTC pero sin sufijo "Z", así que hay que
       // agregarlo explícitamente o el navegador lo interpreta como hora local.
       const time = e.strTimestamp ? `${e.strTimestamp}Z` : `${today}T00:00:00Z`;
@@ -82,6 +102,8 @@ export async function GET() {
         stage: e.strStage ?? "",
         homeScore,
         awayScore,
+        penaltyHomeScore,
+        penaltyAwayScore,
         finished: homeScore !== null && awayScore !== null,
       };
     });

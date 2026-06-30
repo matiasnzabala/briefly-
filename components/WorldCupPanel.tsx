@@ -119,6 +119,13 @@ function MatchRow({ match }: { match: WorldCupMatch }) {
         {match.finished && (
           <span className="text-sm font-medium text-neutral-100 shrink-0">
             {match.homeScore} - {match.awayScore}
+            {match.penaltyHomeScore !== null &&
+              match.penaltyAwayScore !== null && (
+                <span className="text-neutral-500 font-normal">
+                  {" "}
+                  (pen. {match.penaltyHomeScore}-{match.penaltyAwayScore})
+                </span>
+              )}
           </span>
         )}
       </div>

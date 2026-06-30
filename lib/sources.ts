@@ -8,14 +8,22 @@ export interface FeedSource {
    * parsed out of each title instead of using `name` as the source.
    */
   isGoogleNews?: boolean;
+  /** Idioma de origen si NO es español, para traducir título y resumen. */
+  lang?: "pt" | "it";
 }
 
-function googleNews(country: string, hl: string, gl: string): FeedSource {
+function googleNews(
+  country: string,
+  hl: string,
+  gl: string,
+  lang?: "pt" | "it"
+): FeedSource {
   return {
     name: "Google News",
     url: `https://news.google.com/rss?hl=${hl}&gl=${gl}&ceid=${gl}:${hl}`,
     country,
     isGoogleNews: true,
+    lang,
   };
 }
 
@@ -54,11 +62,11 @@ export const SOURCES: FeedSource[] = [
   googleNews("AR", "es-419", "AR"),
 
   // Resto de países: Google News por país (validado, sin XML roto ni 404)
-  googleNews("BR", "pt-BR", "BR"),
+  googleNews("BR", "pt-BR", "BR", "pt"),
   googleNews("ES", "es", "ES"),
   googleNews("MX", "es-419", "MX"),
   googleNews("CL", "es-419", "CL"),
   googleNews("CO", "es-419", "CO"),
   googleNews("US", "es-419", "US"),
-  googleNews("IT", "it", "IT"),
+  googleNews("IT", "it", "IT", "it"),
 ];

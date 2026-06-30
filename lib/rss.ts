@@ -1,5 +1,6 @@
 import Parser from "rss-parser";
-import { SOURCES } from "./sources";
+import { SOURCES, type FeedSource } from "./sources";
+import { translateBatch } from "./translate";
 
 const parser = new Parser({ timeout: 10000 });
 
@@ -24,37 +25,57 @@ function splitGoogleNewsTitle(rawTitle: string): {
   };
 }
 
+async function fetchSource(source: FeedSource): Promise<RawArticle[]> {
+  const feed = await parser.parseURL(source.url);
+  const articles = (feed.items ?? []).slice(0, 35).map((item) => {
+    const rawTitle = item.title ?? "";
+
+    if (source.isGoogleNews) {
+      const { title, source: parsedSource } = splitGoogleNewsTitle(rawTitle);
+      return {
+        title,
+        link: item.link ?? "",
+        source: parsedSource ?? source.name,
+        country: source.country,
+        publishedAt: item.isoDate,
+        contentSnippet: item.contentSnippet?.slice(0, 300),
+      };
+    }
+
+    return {
+      title: rawTitle,
+      link: item.link ?? "",
+      source: source.name,
+      country: source.country,
+      publishedAt: item.isoDate,
+      contentSnippet: item.contentSnippet?.slice(0, 300),
+    };
+  });
+
+  if (!source.lang) return articles;
+
+  // Traducir títulos y resúmenes al español en dos requests batcheados
+  // (no uno por artículo) para no multiplicar las llamadas a la API.
+  const [translatedTitles, translatedSnippets] = await Promise.all([
+    translateBatch(
+      articles.map((a) => a.title),
+      source.lang
+    ),
+    translateBatch(
+      articles.map((a) => a.contentSnippet ?? ""),
+      source.lang
+    ),
+  ]);
+
+  return articles.map((a, i) => ({
+    ...a,
+    title: translatedTitles[i] || a.title,
+    contentSnippet: translatedSnippets[i] || a.contentSnippet,
+  }));
+}
+
 export async function fetchAllArticles(): Promise<RawArticle[]> {
-  const results = await Promise.allSettled(
-    SOURCES.map(async (source) => {
-      const feed = await parser.parseURL(source.url);
-      return (feed.items ?? []).slice(0, 35).map((item) => {
-        const rawTitle = item.title ?? "";
-
-        if (source.isGoogleNews) {
-          const { title, source: parsedSource } =
-            splitGoogleNewsTitle(rawTitle);
-          return {
-            title,
-            link: item.link ?? "",
-            source: parsedSource ?? source.name,
-            country: source.country,
-            publishedAt: item.isoDate,
-            contentSnippet: item.contentSnippet?.slice(0, 300),
-          };
-        }
-
-        return {
-          title: rawTitle,
-          link: item.link ?? "",
-          source: source.name,
-          country: source.country,
-          publishedAt: item.isoDate,
-          contentSnippet: item.contentSnippet?.slice(0, 300),
-        };
-      });
-    })
-  );
+  const results = await Promise.allSettled(SOURCES.map(fetchSource));
 
   return results
     .filter(
