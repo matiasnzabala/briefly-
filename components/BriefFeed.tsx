@@ -293,10 +293,10 @@ export default function BriefFeed({
         </div>
       )}
 
-      <div className="sticky-header -mx-4 px-4 pb-3 flex items-center justify-between gap-3" style={{ borderBottom: "1px solid var(--border)" }}>
-        <div className="flex items-baseline gap-2 shrink-0">
+      <div className="sticky-header -mx-4 px-4 pb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between" style={{ borderBottom: "1px solid var(--border)" }}>
+        <div className="flex items-center justify-between gap-2 sm:contents">
           <h1
-            className="text-xl font-bold tracking-tight"
+            className="text-xl font-bold tracking-tight shrink-0"
             style={{
               background: "linear-gradient(135deg, var(--gradient-from) 0%, var(--gradient-to) 100%)",
               WebkitBackgroundClip: "text",
@@ -306,11 +306,16 @@ export default function BriefFeed({
           >
             briefly
           </h1>
+          <div className="sm:hidden">
+            <ThemeToggle />
+          </div>
         </div>
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-1 sm:order-none overflow-x-auto">
           {mounted ? <TopTicker /> : <TickerSkeleton />}
         </div>
-        <ThemeToggle />
+        <div className="hidden sm:block shrink-0">
+          <ThemeToggle />
+        </div>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8 items-start">

@@ -243,9 +243,9 @@ export default function TopTicker() {
 
   return (
     <>
-      <div className="flex flex-wrap gap-2 text-xs">
+      <div className="flex flex-nowrap sm:flex-wrap gap-2 text-xs overflow-x-auto sm:overflow-visible pb-1 sm:pb-0 -mb-1 sm:mb-0">
         {shownRates.map((r) => (
-          <span key={r.casa} className="flex items-center gap-1.5 rounded-full px-3 py-1.5" style={chipStyle}>
+          <span key={r.casa} className="flex items-center gap-1.5 rounded-full px-3 py-1.5 shrink-0 whitespace-nowrap" style={chipStyle}>
             <span>💵</span>
             <span style={{ color: "var(--text-muted)" }}>{r.nombre}</span>
             <span className="font-medium" style={{ color: "var(--text)" }}>
@@ -257,7 +257,7 @@ export default function TopTicker() {
         {clima && clima.temperature !== null && (
           <button
             onClick={() => setShowClima(true)}
-            className="flex items-center gap-1.5 rounded-full px-3 py-1.5 transition-all"
+            className="flex items-center gap-1.5 rounded-full px-3 py-1.5 shrink-0 whitespace-nowrap transition-all"
             style={{ ...chipStyle, cursor: "pointer" }}
             title="Ver más detalles del clima"
           >
@@ -270,7 +270,7 @@ export default function TopTicker() {
         )}
 
         {riesgoPais && (
-          <span className="flex items-center gap-1.5 rounded-full px-3 py-1.5" style={chipStyle}>
+          <span className="flex items-center gap-1.5 rounded-full px-3 py-1.5 shrink-0 whitespace-nowrap" style={chipStyle}>
             <span>📈</span>
             <span style={{ color: "var(--text-muted)" }}>Riesgo país</span>
             <span className="font-medium" style={{ color: "var(--text)" }}>{riesgoPais.valor.toLocaleString("es-AR")} pb</span>
@@ -278,7 +278,7 @@ export default function TopTicker() {
         )}
 
         {feriado && (
-          <span className="flex items-center gap-1.5 rounded-full px-3 py-1.5" style={chipStyle}>
+          <span className="flex items-center gap-1.5 rounded-full px-3 py-1.5 shrink-0 whitespace-nowrap" style={chipStyle}>
             <span>📅</span>
             <span style={{ color: "var(--text-muted)" }}>Próximo feriado</span>
             <span className="font-medium" style={{ color: "var(--text)" }}>{formatFeriadoDate(feriado.fecha)}</span>
