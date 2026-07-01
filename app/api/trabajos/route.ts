@@ -52,28 +52,33 @@ export async function GET() {
     const json: RemoteOkJob[] = await res.json();
     const listings = json.filter((j) => j.position && j.company);
 
-    const inArgentina = listings.filter((j) =>
-      /argentina/i.test(j.location ?? "")
-    );
-    const openWorldwide = listings.filter(
-      (j) =>
-        !/argentina/i.test(j.location ?? "") &&
-        /worldwide|anywhere/i.test(j.location ?? "")
-    );
+    // Todos los avisos de RemoteOK son remotos; el campo `location` es la
+    // ciudad de quien publica, no dónde se puede aplicar. Por eso priorizamos
+    // los que mencionan Argentina/LATAM/worldwide y luego completamos con el
+    // resto de los avisos remotos más recientes.
+    const relevant = (j: RemoteOkJob) =>
+      /argentina|latam|latin america|worldwide|anywhere|remote/i.test(
+        j.location ?? ""
+      );
 
-    const picked = [...inArgentina, ...openWorldwide].slice(0, MAX_JOBS);
+    const prioritized = listings.filter(relevant);
+    const rest = listings.filter((j) => !relevant(j));
+    const picked = [...prioritized, ...rest].slice(0, MAX_JOBS);
 
-    const jobs: JobOffer[] = picked.map((j) => ({
-      id: j.id ?? j.slug ?? j.position!,
-      title: fixMojibake(j.position!),
-      company: fixMojibake(j.company!),
-      location: /argentina/i.test(j.location ?? "")
-        ? fixMojibake(j.location!)
-        : "Remoto (abierto a Argentina)",
-      url: j.url ?? j.apply_url ?? "https://remoteok.com",
-      tags: (j.tags ?? []).slice(0, 3).map(fixMojibake),
-      publishedAt: j.date ?? new Date().toISOString(),
-    }));
+    const jobs: JobOffer[] = picked.map((j) => {
+      const rawLoc = fixMojibake((j.location ?? "").trim())
+        .replace(/[\s,]+$/, "")
+        .replace(/^[\s,]+/, "");
+      return {
+        id: j.id ?? j.slug ?? j.position!,
+        title: fixMojibake(j.position!),
+        company: fixMojibake(j.company!),
+        location: rawLoc ? `Remoto · ${rawLoc}` : "Remoto",
+        url: j.url ?? j.apply_url ?? "https://remoteok.com",
+        tags: (j.tags ?? []).slice(0, 3).map(fixMojibake),
+        publishedAt: j.date ?? new Date().toISOString(),
+      };
+    });
 
     cache = { data: jobs, expiresAt: Date.now() + CACHE_TTL_MS };
     return NextResponse.json({ jobs });
