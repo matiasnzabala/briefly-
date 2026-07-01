@@ -82,13 +82,56 @@ const CATEGORY_KEYWORDS: Record<Category, string[]> = {
     // italiano
     "azienda", "aziende", "investimento", "industria", "lavoro",
   ],
+  Salud: [
+    "salud", "hospital", "hospitales", "medico", "médico", "medicos",
+    "médicos", "enfermedad", "enfermedades", "virus", "vacuna", "vacunas",
+    "pandemia", "epidemia", "covid", "gripe", "dengue", "sanidad",
+    "paciente", "pacientes", "cancer", "cáncer", "cirugia", "cirugía",
+    "medicamento", "medicamentos", "farmaceutica", "farmacéutica", "clinica",
+    "clínica", "obra social", "prepaga", "psicologia", "psicología",
+    "salud mental", "nutricion", "nutrición",
+    // portugués
+    "saude", "saúde", "hospital", "medico", "médico", "doenca", "doença",
+    "vacina", "paciente",
+    // italiano
+    "salute", "ospedale", "medico", "malattia", "vaccino", "paziente",
+  ],
+  Ciencia: [
+    "ciencia", "cientifico", "científico", "cientificos", "científicos",
+    "investigacion", "investigación", "estudio", "descubrimiento",
+    "universidad", "conicet", "fisica", "física", "quimica", "química",
+    "biologia", "biología", "arqueologia", "arqueología", "genoma",
+    "gen", "genetica", "genética", "telescopio", "planeta", "exoplaneta",
+    "marte", "luna", "astronomia", "astronomía", "clima", "cambio climatico",
+    "cambio climático", "paleontologia", "paleontología", "fosil", "fósil",
+    // portugués
+    "ciencia", "ciência", "cientista", "pesquisa", "descoberta",
+    "universidade",
+    // italiano
+    "scienza", "scienziato", "ricerca", "scoperta", "universita", "università",
+  ],
+  Mundo: [
+    "onu", "otan", "guerra", "conflicto", "invasion", "invasión",
+    "diplomatico", "diplomático", "embajada", "embajador", "tratado",
+    "cumbre", "union europea", "unión europea", "sancion", "sanción",
+    "sanciones", "refugiados", "migrantes", "frontera", "misil", "ejercito",
+    "ejército", "militar", "ataque", "bombardeo", "cese el fuego",
+    "alto el fuego", "internacional",
+    // portugués
+    "onu", "guerra", "conflito", "fronteira", "militar",
+    // italiano
+    "onu", "guerra", "conflitto", "frontiera", "militare",
+  ],
 };
 
 const CATEGORY_PRIORITY: Category[] = [
   "Deportes",
+  "Salud",
+  "Ciencia",
   "Economía",
   "Tecnología",
   "Negocios",
+  "Mundo",
   "Política",
 ];
 

@@ -8,6 +8,9 @@ const CATEGORIES: Category[] = [
   "Deportes",
   "Tecnología",
   "Negocios",
+  "Salud",
+  "Ciencia",
+  "Mundo",
 ];
 
 export interface GeneratedEvent {

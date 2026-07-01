@@ -3,7 +3,10 @@ export type Category =
   | "Economía"
   | "Deportes"
   | "Tecnología"
-  | "Negocios";
+  | "Negocios"
+  | "Salud"
+  | "Ciencia"
+  | "Mundo";
 
 export type Period = "today" | "week" | "month";
 
@@ -66,6 +69,9 @@ export const CATEGORIES: Category[] = [
   "Deportes",
   "Tecnología",
   "Negocios",
+  "Salud",
+  "Ciencia",
+  "Mundo",
 ];
 
 export const MOCK_EVENTS: BriefEvent[] = [
