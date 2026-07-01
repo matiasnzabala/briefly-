@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { WorldCupMatch } from "@/app/api/mundial/route";
+import JobsPanel from "./JobsPanel";
 
 const TEAM_NAMES_ES: Record<string, string> = {
   Argentina: "Argentina",
@@ -291,6 +292,8 @@ export default function WorldCupPanel() {
           </div>
         </div>
       )}
+
+      <JobsPanel />
     </aside>
   );
 }
