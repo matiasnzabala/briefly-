@@ -60,7 +60,7 @@ function uvLabel(uv: number): string {
   return "Extremo";
 }
 
-function ClimaModal({ clima, onClose }: { clima: Clima; onClose: () => void }) {
+function ClimaModal({ clima, cityName, onClose }: { clima: Clima; cityName: string; onClose: () => void }) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     window.addEventListener("keydown", onKey);
@@ -103,7 +103,7 @@ function ClimaModal({ clima, onClose }: { clima: Clima; onClose: () => void }) {
               </span>
             </div>
             <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>{clima.description}</p>
-            <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>Buenos Aires</p>
+            <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>{cityName}</p>
           </div>
           <button
             onClick={onClose}
@@ -160,9 +160,17 @@ function ClimaModal({ clima, onClose }: { clima: Clima; onClose: () => void }) {
   );
 }
 
+const CITY_CACHE_KEY = "briefly:city";
+
+function loadCachedCity(): string | null {
+  if (typeof window === "undefined") return null;
+  return window.localStorage.getItem(CITY_CACHE_KEY);
+}
+
 export default function TopTicker() {
   const [rates, setRates] = useState<DolarRate[] | null>(null);
   const [clima, setClima] = useState<Clima | null>(null);
+  const [cityName, setCityName] = useState<string>(() => loadCachedCity() ?? "Buenos Aires");
   const [feriado, setFeriado] = useState<Feriado | null>(null);
   const [riesgoPais, setRiesgoPais] = useState<RiesgoPais | null>(null);
   const [showClima, setShowClima] = useState(false);
@@ -175,10 +183,40 @@ export default function TopTicker() {
       .then((json) => { if (!cancelled && json.rates) setRates(json.rates); })
       .catch(() => {});
 
-    fetch("/api/clima")
-      .then((r) => r.json())
-      .then((json) => { if (!cancelled && typeof json.temperature !== "undefined") setClima(json); })
-      .catch(() => {});
+    function fetchClima(lat?: number, lon?: number) {
+      const url = lat !== undefined && lon !== undefined
+        ? `/api/clima?lat=${lat}&lon=${lon}`
+        : "/api/clima";
+      fetch(url)
+        .then((r) => r.json())
+        .then((json) => { if (!cancelled && typeof json.temperature !== "undefined") setClima(json); })
+        .catch(() => {});
+    }
+
+    if (typeof window !== "undefined" && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { latitude, longitude } = pos.coords;
+          fetchClima(latitude, longitude);
+          fetch(
+            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=es`
+          )
+            .then((r) => r.json())
+            .then((json) => {
+              const name = json.city || json.locality || json.principalSubdivision;
+              if (!cancelled && name) {
+                setCityName(name);
+                window.localStorage.setItem(CITY_CACHE_KEY, name);
+              }
+            })
+            .catch(() => {});
+        },
+        () => fetchClima(),
+        { timeout: 5000 }
+      );
+    } else {
+      fetchClima();
+    }
 
     fetch("/api/feriados")
       .then((r) => r.json())
@@ -224,7 +262,7 @@ export default function TopTicker() {
             title="Ver más detalles del clima"
           >
             <span>{clima.emoji || "📍"}</span>
-            <span style={{ color: "var(--text-muted)" }}>Buenos Aires</span>
+            <span style={{ color: "var(--text-muted)" }}>{cityName}</span>
             <span className="font-medium" style={{ color: "var(--text)" }}>{Math.round(clima.temperature)}°C</span>
             <span style={{ color: "var(--text-muted)" }}>{clima.description}</span>
             <span className="text-[10px]" style={{ color: "var(--text-faint)" }}>▾</span>
@@ -250,7 +288,7 @@ export default function TopTicker() {
       </div>
 
       {showClima && clima && (
-        <ClimaModal clima={clima} onClose={() => setShowClima(false)} />
+        <ClimaModal clima={clima} cityName={cityName} onClose={() => setShowClima(false)} />
       )}
     </>
   );

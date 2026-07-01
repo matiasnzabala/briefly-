@@ -48,20 +48,31 @@ const WEATHER_CODE_EMOJI: Record<number, string> = {
   99: "⛈️",
 };
 
-let cache: { data: object; expiresAt: number } | null = null;
+const cache = new Map<string, { data: object; expiresAt: number }>();
 const CACHE_TTL_MS = 1000 * 60 * 20; // 20 minutos
 
-export async function GET() {
-  if (cache && cache.expiresAt > Date.now()) {
-    return NextResponse.json(cache.data);
+const DEFAULT_LAT = -34.6;
+const DEFAULT_LON = -58.38;
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const latParam = Number(searchParams.get("lat"));
+  const lonParam = Number(searchParams.get("lon"));
+  const lat = Number.isFinite(latParam) ? latParam : DEFAULT_LAT;
+  const lon = Number.isFinite(lonParam) ? lonParam : DEFAULT_LON;
+
+  const cacheKey = `${lat.toFixed(2)},${lon.toFixed(2)}`;
+  const cached = cache.get(cacheKey);
+  if (cached && cached.expiresAt > Date.now()) {
+    return NextResponse.json(cached.data);
   }
 
   try {
     const res = await fetch(
-      "https://api.open-meteo.com/v1/forecast?latitude=-34.6&longitude=-58.38" +
+      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
       "&current=temperature_2m,weather_code,apparent_temperature,relative_humidity_2m,wind_speed_10m,wind_direction_10m,precipitation" +
       "&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,uv_index_max,weather_code" +
-      "&timezone=America%2FArgentina%2FBuenos_Aires&forecast_days=7",
+      "&timezone=auto&forecast_days=7",
       { signal: AbortSignal.timeout(8000) }
     );
     if (!res.ok) throw new Error(`open-meteo respondió ${res.status}`);
@@ -94,7 +105,7 @@ export async function GET() {
       })),
     };
 
-    cache = { data, expiresAt: Date.now() + CACHE_TTL_MS };
+    cache.set(cacheKey, { data, expiresAt: Date.now() + CACHE_TTL_MS });
     return NextResponse.json(data);
   } catch (err) {
     console.error(err);
