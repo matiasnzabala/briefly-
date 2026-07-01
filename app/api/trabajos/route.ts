@@ -12,18 +12,27 @@ export interface JobOffer {
 
 // El endpoint público (guest) de búsqueda de empleos de LinkedIn devuelve
 // HTML con tarjetas de avisos. Es gratuito y sin clave. Filtramos por
-// Argentina y limitamos a la última semana (f_TPR=r604800) por relevancia.
+// ubicación y limitamos a la última semana (f_TPR=r604800) por relevancia.
 // Nota: evitar sortBy=DD y ventanas largas (f_TPR=r2592000): LinkedIn
 // responde con avisos extranjeros mal geo-etiquetados y artefactos de UI.
-const LINKEDIN_URL =
-  "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?location=Argentina&f_TPR=r604800&start=0";
+function buildLinkedInUrl(location: string, km: number): string {
+  const params = new URLSearchParams({
+    location,
+    f_TPR: "r604800",
+    start: "0",
+  });
+  // `distance` de LinkedIn va en millas. 50 km ≈ 31 mi.
+  if (km > 0) params.set("distance", String(Math.round(km * 0.621371)));
+  return `https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?${params}`;
+}
 
 const BROWSER_UA =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36";
 
 const MAX_JOBS = 8;
+const DEFAULT_LOCATION = "Argentina"; // sin geolocalización: todo el país
 
-let cache: { data: JobOffer[]; expiresAt: number } | null = null;
+const cache = new Map<string, { data: JobOffer[]; expiresAt: number }>();
 const CACHE_TTL_MS = 1000 * 60 * 30; // 30 minutos
 
 function decodeEntities(text: string): string {
@@ -45,11 +54,11 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 // LinkedIn limita por IP (429) de forma agresiva. Reintentamos un par de
 // veces con backoff corto para sobrevivir a un arranque en frío sin cache.
-async function fetchListings(): Promise<string> {
+async function fetchListings(url: string): Promise<string> {
   let lastStatus = 0;
   for (let attempt = 0; attempt < 3; attempt++) {
     if (attempt > 0) await sleep(1500 * attempt);
-    const res = await fetch(LINKEDIN_URL, {
+    const res = await fetch(url, {
       headers: { "User-Agent": BROWSER_UA },
       signal: AbortSignal.timeout(8000),
     });
@@ -60,13 +69,19 @@ async function fetchListings(): Promise<string> {
   throw new Error(`linkedin respondió ${lastStatus}`);
 }
 
-export async function GET() {
-  if (cache && cache.expiresAt > Date.now()) {
-    return NextResponse.json({ jobs: cache.data });
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const location = (searchParams.get("location") || DEFAULT_LOCATION).trim();
+  const km = Number(searchParams.get("km")) || 0;
+
+  const cacheKey = `${location}|${km}`;
+  const cached = cache.get(cacheKey);
+  if (cached && cached.expiresAt > Date.now()) {
+    return NextResponse.json({ jobs: cached.data });
   }
 
   try {
-    const html = await fetchListings();
+    const html = await fetchListings(buildLinkedInUrl(location, km));
 
     // Parseamos tarjeta por tarjeta (un bloque por aviso). Extraer campo por
     // campo dentro de cada bloque evita que un aviso sin algún dato desalinee
@@ -104,14 +119,14 @@ export async function GET() {
 
     if (jobs.length === 0) throw new Error("no se pudieron parsear avisos");
 
-    cache = { data: jobs, expiresAt: Date.now() + CACHE_TTL_MS };
+    cache.set(cacheKey, { data: jobs, expiresAt: Date.now() + CACHE_TTL_MS });
     return NextResponse.json({ jobs });
   } catch (err) {
     console.error(err);
     // Si la actualización falla (p. ej. 429 de LinkedIn), seguimos sirviendo
     // el último resultado bueno aunque esté vencido, para no romper el panel.
-    if (cache) {
-      return NextResponse.json({ jobs: cache.data, stale: true });
+    if (cached) {
+      return NextResponse.json({ jobs: cached.data, stale: true });
     }
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Error desconocido" },
