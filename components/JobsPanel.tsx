@@ -29,7 +29,7 @@ export default function JobsPanel() {
   return (
     <div className="flex flex-col gap-3">
       <h2 className="text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
-        Ofertas de trabajo remoto
+        Ofertas de trabajo — Argentina
       </h2>
 
       {jobs === null && (
