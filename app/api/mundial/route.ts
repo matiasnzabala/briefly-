@@ -59,12 +59,23 @@ const FINISHED_STATUSES = new Set([
   "FINISHED",
 ]);
 
-function isFinished(status: string | null, kickoffIso: string | null): boolean {
+function isFinished(
+  status: string | null,
+  kickoffIso: string | null,
+  homeScore: number | null,
+  awayScore: number | null
+): boolean {
   if (status && FINISHED_STATUSES.has(status.trim().toUpperCase())) return true;
-  // fallback: si arrancó hace más de 2h30 con marcador, asumimos terminado
+  // Fallback por si el proveedor deja el status desactualizado (ej. "2H"
+  // mucho después de que el partido terminó en la realidad). Un partido
+  // sin tiempo extra dura ~120' incluyendo entretiempo y descuento; si el
+  // marcador está empatado dejamos más margen por si hay tiempo extra y
+  // penales.
   if (kickoffIso) {
     const elapsed = Date.now() - new Date(`${kickoffIso}Z`).getTime();
-    if (elapsed > 1000 * 60 * 150) return true;
+    const isDraw = homeScore !== null && awayScore !== null && homeScore === awayScore;
+    const threshold = isDraw ? 1000 * 60 * 170 : 1000 * 60 * 125;
+    if (elapsed > threshold) return true;
   }
   return false;
 }
@@ -144,7 +155,7 @@ export async function GET() {
         awayScore,
         penaltyHomeScore,
         penaltyAwayScore,
-        finished: isFinished(e.strStatus, e.strTimestamp),
+        finished: isFinished(e.strStatus, e.strTimestamp, homeScore, awayScore),
       };
     });
 
