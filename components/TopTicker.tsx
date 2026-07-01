@@ -243,7 +243,7 @@ export default function TopTicker() {
 
   return (
     <>
-      <div className="flex flex-nowrap sm:flex-wrap gap-2 text-xs overflow-x-auto sm:overflow-visible pb-1 sm:pb-0 -mb-1 sm:mb-0">
+      <div className="flex flex-wrap gap-2 text-xs">
         {shownRates.map((r) => (
           <span key={r.casa} className="flex items-center gap-1.5 rounded-full px-3 py-1.5 shrink-0 whitespace-nowrap" style={chipStyle}>
             <span>💵</span>

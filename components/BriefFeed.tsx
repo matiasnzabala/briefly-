@@ -310,7 +310,7 @@ export default function BriefFeed({
             <ThemeToggle />
           </div>
         </div>
-        <div className="min-w-0 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-1 sm:order-none overflow-x-auto">
+        <div className="min-w-0 sm:flex-1">
           {mounted ? <TopTicker /> : <TickerSkeleton />}
         </div>
         <div className="hidden sm:block shrink-0">
